@@ -227,8 +227,8 @@ fun StockRankItem(item: StockItem) {
                     text = item.change,
                     fontSize = 12.sp,
                     color = when (item.direction) {
-                        ChangeDirection.UP -> MaterialTheme.colorScheme.error
-                        ChangeDirection.DOWN -> MaterialTheme.colorScheme.primary
+                        ChangeDirection.UP -> Red
+                        ChangeDirection.DOWN -> Blue
                         ChangeDirection.FLAT -> MaterialTheme.colorScheme.onSurfaceVariant
                     }
                 )
