@@ -37,43 +37,43 @@ fun HomeScreen() {
 
     // 더미 데이터
     val byAmountList = listOf(
-        StockItem(1, "에코프로", "", "138,000원", "+2.1%", ChangeDirection.UP),
-        StockItem(2, "셀트리온헬스케어", "", "83,500원", "-1.3%", ChangeDirection.DOWN),
-        StockItem(3, "엘앤에프", "", "170,200원", "+0.7%", ChangeDirection.UP),
-        StockItem(4, "펄어비스", "", "43,000원", "-0.5%", ChangeDirection.DOWN),
-        StockItem(5, "씨젠", "", "31,100원", "0.0%", ChangeDirection.FLAT),
+        StockItem(id = 1001, rank = 1, name = "에코프로", imageUrl = "", price = "138,000원", change = "+2.1%", direction = ChangeDirection.UP),
+        StockItem(1002, 2, "셀트리온헬스케어", "", "83,500원", "-1.3%", ChangeDirection.DOWN),
+        StockItem(1003, 3, "엘앤에프", "", "170,200원", "+0.7%", ChangeDirection.UP),
+        StockItem(1004, 4, "펄어비스", "", "43,000원", "-0.5%", ChangeDirection.DOWN),
+        StockItem(1005, 5, "씨젠", "", "31,100원", "0.0%", ChangeDirection.FLAT),
     )
 
     val byVolumeList = listOf(
-        StockItem(1, "HLB", "", "58,000원", "+3.2%", ChangeDirection.UP),
-        StockItem(2, "위메이드", "", "26,700원", "-1.7%", ChangeDirection.DOWN),
-        StockItem(3, "CJ ENM", "", "89,000원", "+0.9%", ChangeDirection.UP),
-        StockItem(4, "동화약품", "", "15,200원", "-0.8%", ChangeDirection.DOWN),
-        StockItem(5, "KMH", "", "9,300원", "0.0%", ChangeDirection.FLAT),
+        StockItem(2001, 1, "HLB", "", "58,000원", "+3.2%", ChangeDirection.UP),
+        StockItem(2002, 2, "위메이드", "", "26,700원", "-1.7%", ChangeDirection.DOWN),
+        StockItem(2003, 3, "CJ ENM", "", "89,000원", "+0.9%", ChangeDirection.UP),
+        StockItem(2004, 4, "동화약품", "", "15,200원", "-0.8%", ChangeDirection.DOWN),
+        StockItem(2005, 5, "KMH", "", "9,300원", "0.0%", ChangeDirection.FLAT),
     )
 
     val gainersList = listOf(
-        StockItem(1, "대주전자재료", "", "71,000원", "+7.5%", ChangeDirection.UP),
-        StockItem(2, "고영", "", "34,200원", "+5.3%", ChangeDirection.UP),
-        StockItem(3, "아프리카TV", "", "62,800원", "+4.2%", ChangeDirection.UP),
-        StockItem(4, "크래프톤", "", "212,000원", "+3.9%", ChangeDirection.UP),
-        StockItem(5, "한글과컴퓨터", "", "22,100원", "+3.6%", ChangeDirection.UP),
+        StockItem(3001, 1, "대주전자재료", "", "71,000원", "+7.5%", ChangeDirection.UP),
+        StockItem(3002, 2, "고영", "", "34,200원", "+5.3%", ChangeDirection.UP),
+        StockItem(3003, 3, "아프리카TV", "", "62,800원", "+4.2%", ChangeDirection.UP),
+        StockItem(3004, 4, "크래프톤", "", "212,000원", "+3.9%", ChangeDirection.UP),
+        StockItem(3005, 5, "한글과컴퓨터", "", "22,100원", "+3.6%", ChangeDirection.UP),
     )
 
     val losersList = listOf(
-        StockItem(1, "카카오게임즈", "", "41,800원", "-5.2%", ChangeDirection.DOWN),
-        StockItem(2, "컴투스", "", "64,300원", "-4.6%", ChangeDirection.DOWN),
-        StockItem(3, "코미팜", "", "5,800원", "-3.9%", ChangeDirection.DOWN),
-        StockItem(4, "알서포트", "", "4,200원", "-2.8%", ChangeDirection.DOWN),
-        StockItem(5, "이연제약", "", "30,000원", "-2.4%", ChangeDirection.DOWN),
+        StockItem(4001, 1, "카카오게임즈", "", "41,800원", "-5.2%", ChangeDirection.DOWN),
+        StockItem(4002, 2, "컴투스", "", "64,300원", "-4.6%", ChangeDirection.DOWN),
+        StockItem(4003, 3, "코미팜", "", "5,800원", "-3.9%", ChangeDirection.DOWN),
+        StockItem(4004, 4, "알서포트", "", "4,200원", "-2.8%", ChangeDirection.DOWN),
+        StockItem(4005, 5, "이연제약", "", "30,000원", "-2.4%", ChangeDirection.DOWN),
     )
 
     val popularList = listOf(
-        StockItem(1, "엔비디아", "", "1,234,000원", "+2.1%", ChangeDirection.UP),
-        StockItem(2, "삼성전자", "", "72,000원", "+1.0%", ChangeDirection.UP),
-        StockItem(3, "LG에너지솔루션", "", "580,000원", "-0.8%", ChangeDirection.DOWN),
-        StockItem(4, "SK하이닉스", "", "135,000원", "+0.5%", ChangeDirection.UP),
-        StockItem(5, "포스코퓨처엠", "", "395,000원", "0.0%", ChangeDirection.FLAT),
+        StockItem(5001, 1, "엔비디아", "", "1,234,000원", "+2.1%", ChangeDirection.UP),
+        StockItem(5002, 2, "삼성전자", "", "72,000원", "+1.0%", ChangeDirection.UP),
+        StockItem(5003, 3, "LG에너지솔루션", "", "580,000원", "-0.8%", ChangeDirection.DOWN),
+        StockItem(5004, 4, "SK하이닉스", "", "135,000원", "+0.5%", ChangeDirection.UP),
+        StockItem(5005, 5, "포스코퓨처엠", "", "395,000원", "0.0%", ChangeDirection.FLAT),
     )
 
     val stockItems = when (selectedIndex) {
