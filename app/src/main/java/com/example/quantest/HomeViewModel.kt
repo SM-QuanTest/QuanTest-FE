@@ -9,17 +9,17 @@ import androidx.lifecycle.viewModelScope
 import com.example.quantest.model.ChangeDirection
 import com.example.quantest.model.StockItem
 import kotlinx.coroutines.launch
-import org.threeten.bp.LocalDate
 
 class HomeViewModel : ViewModel() {
 
     var stockItems by mutableStateOf<List<StockItem>>(emptyList())
         private set
 
-    fun loadStocks(category: String, date: String = LocalDate.now().toString()) {
+    //fun loadStocks(category: String, date: String = LocalDate.now().toString()) {
+    fun loadStocks(category: String, date: String = "2025-07-18") {
     viewModelScope.launch {
             try {
-                val response = ApiClient.stockApiService.getStockRankings(category, date)
+                val response = RetrofitClient.stockApi.getStockRankings(category, date)
                 if (response.isSuccessful) {
                     Log.d("HomeViewModel", "✅ API 성공: ${response.body()?.data?.categoryName}")
                     response.body()?.data?.stocks?.let { rankingList ->

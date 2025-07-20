@@ -1,5 +1,8 @@
 package com.example.quantest
 
+import android.util.Log
+import android.view.LayoutInflater
+import android.widget.FrameLayout
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -24,9 +27,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.Modifier
 import androidx.compose.foundation.layout.*
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
-import com.example.quantest.ui.theme.Navy
+import androidx.compose.ui.viewinterop.AndroidView
+import com.github.mikephil.charting.charts.CandleStickChart
+import com.github.mikephil.charting.data.CandleData
+import com.github.mikephil.charting.data.CandleDataSet
+import com.github.mikephil.charting.data.CandleEntry
+import android.graphics.Color as AndroidColor
+import android.graphics.Paint
+import com.github.mikephil.charting.components.XAxis
 
 
 @Preview(showBackground = true)
@@ -50,6 +61,13 @@ fun StockDetailScreen(
     onDetailClick: () -> Unit,
     onBuyClick: () -> Unit
 ) {
+    val viewModel = remember { StockDetailViewModel() }
+    LaunchedEffect(stockId) {
+        Log.d("StockDetailScreen", "Received stockId: $stockId")
+        viewModel.fetchChartData(stockId)
+    }
+
+
     var selectedTab by remember { mutableStateOf(0) }
     val tabs = listOf("차트", "종목정보")
 
@@ -92,7 +110,7 @@ fun StockDetailScreen(
         }
 
         when (selectedTab) {
-            0 -> ChartTabContent()
+            0 -> ChartTabContent(viewModel.chartData)
             1 -> InfoTabContent()
         }
 
@@ -131,9 +149,67 @@ fun StockDetailScreen(
 }
 
 // 차트 탭
+fun chartDataToEntries(data: List<ChartData>): List<CandleEntry> {
+    return data.mapIndexed { index, item ->
+        CandleEntry(
+            index.toFloat(),
+            item.chartHigh.toFloat(),
+            item.chartLow.toFloat(),
+            item.chartOpen.toFloat(),
+            item.chartClose.toFloat()
+        )
+    }
+}
+
 @Composable
-fun ChartTabContent() {
-    // 실제 구현 시 WebView or Chart API 사용
+fun ChartTabContent(data: List<ChartData>) {
+
+    LaunchedEffect(data) {
+        Log.d("ChartDebug", "chartData size: ${data.size}")
+        data.forEachIndexed { i, d ->
+            Log.d("ChartDebug", "[$i] ${d.chartDate} | O:${d.chartOpen}, H:${d.chartHigh}, L:${d.chartLow}, C:${d.chartClose}")
+        }
+    }
+
+    if (data.isEmpty()) return
+
+    val entries = chartDataToEntries(data)
+
+    AndroidView(
+        factory = { context ->
+            val view = LayoutInflater.from(context).inflate(R.layout.candle_chart, null) as FrameLayout
+            val chart = view.findViewById<CandleStickChart>(R.id.candleChart)
+            val dataSet = CandleDataSet(entries, "일봉").apply {
+                color = AndroidColor.GRAY
+                shadowColor = AndroidColor.DKGRAY
+                shadowWidth = 0.7f
+                decreasingColor = AndroidColor.RED
+                decreasingPaintStyle = Paint.Style.FILL
+                increasingColor = AndroidColor.BLUE
+                increasingPaintStyle = Paint.Style.FILL
+                neutralColor = AndroidColor.BLUE
+                setDrawValues(false)
+            }
+            chart.data = CandleData(dataSet)
+
+            chart.apply {
+                xAxis.position = XAxis.XAxisPosition.BOTTOM
+
+                axisLeft.isEnabled = false
+                axisRight.isEnabled = true
+
+                description.isEnabled = false
+                legend.isEnabled = false
+            }
+
+            chart.invalidate()
+            view
+
+        },
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(300.dp)
+    )
 }
 
 // 종목 정보 탭
