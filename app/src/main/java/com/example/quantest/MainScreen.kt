@@ -26,8 +26,23 @@ import androidx.navigation.compose.rememberNavController
 @Composable
 fun MainScreen() {
     val navController = rememberNavController()
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
+
+    // 하단 탭이 필요한 화면만 정의
+    val bottomBarRoutes = listOf(
+        BottomNavItem.Home.route,
+        BottomNavItem.Filter.route,
+        BottomNavItem.Pattern.route,
+        BottomNavItem.Menu.route
+    )
+
     Scaffold(
-        bottomBar = { BottomBar(navController = navController) }
+        bottomBar = {
+            if (currentRoute in bottomBarRoutes) {
+                BottomBar(navController = navController)
+            }
+        }
     ) { innerPadding ->
         Box(Modifier.padding(innerPadding)) {
             NavGraph(navController = navController)
