@@ -11,7 +11,7 @@ interface StockApi {
     suspend fun getStockRankings(
         @Query("category") category: String,
         @Query("date") date: String
-    ): Response<StockRankingResponse>
+    ): Response<BaseResponse<StockRankingData>>
 
     // 종목 일봉 차트 조회
     @GET("/charts/{stockId}")
@@ -19,5 +19,6 @@ interface StockApi {
         @Path("stockId") stockId: Int,
         @Query("startDate") startDate: String,
         @Query("endDate") endDate: String
-    ): Response<ChartResponse>
+    ): Response<BaseResponse<List<ChartData>>>
+    
 }
