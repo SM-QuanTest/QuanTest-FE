@@ -40,6 +40,13 @@ class HomeViewModel : ViewModel() {
     }
 
     private fun StockRankingDto.toStockItem(rank: Int): StockItem {
+        val direction = when (recordDirection.lowercaseChar()) {
+            'u' -> ChangeDirection.UP
+            'd' -> ChangeDirection.DOWN
+            'n' -> ChangeDirection.FLAT
+            else -> ChangeDirection.FLAT
+        }
+
         return StockItem(
             id = stockId.toInt(),
             rank = rank + 1,
@@ -47,11 +54,7 @@ class HomeViewModel : ViewModel() {
             imageUrl = "", // 없으면 빈 문자열
             price = "${chartClose}원",
             change = "${if (chartChangePercentage >= 0) "+" else ""}${chartChangePercentage}%",
-            direction = when {
-                chartChangePercentage > 0 -> ChangeDirection.UP
-                chartChangePercentage < 0 -> ChangeDirection.DOWN
-                else -> ChangeDirection.FLAT
-            }
+            direction = direction
         )
     }
 }

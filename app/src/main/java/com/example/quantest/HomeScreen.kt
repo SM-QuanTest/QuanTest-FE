@@ -165,7 +165,7 @@ fun StockRankItem(item: StockItem, onClick: () -> Unit) {
             model = item.imageUrl,
             contentDescription = "${item.name} 로고",
             modifier = Modifier
-                .size(36.dp)
+                .size(40.dp)
                 .clip(RoundedCornerShape(18.dp)),
             placeholder = painterResource(id = R.drawable.ic_placeholder),
             error = painterResource(id = R.drawable.ic_placeholder)
@@ -176,15 +176,15 @@ fun StockRankItem(item: StockItem, onClick: () -> Unit) {
         Column(modifier = Modifier.weight(1f)) {
             Text(text = item.name, fontWeight = FontWeight.Bold)
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(text = item.price, fontSize = 12.sp)
+                Text(text = item.price, fontSize = 13.sp)
                 Spacer(modifier = Modifier.width(4.dp))
                 Text(
                     text = item.change,
-                    fontSize = 12.sp,
-                    color = when (item.direction) {
-                        ChangeDirection.UP -> Red
-                        ChangeDirection.DOWN -> Blue
-                        ChangeDirection.FLAT -> MaterialTheme.colorScheme.onSurfaceVariant
+                    fontSize = 13.sp,
+                    color = when {
+                        item.change.startsWith("+") -> Red
+                        item.change.startsWith("-") -> Blue
+                        else -> MaterialTheme.colorScheme.onSurfaceVariant
                     }
                 )
             }

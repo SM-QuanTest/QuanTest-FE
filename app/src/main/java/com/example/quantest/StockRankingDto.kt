@@ -15,6 +15,7 @@ data class StockRankingDto(
     val stockId: Long,
     val stockName: String,
     val chartChangePercentage: Double,
-    val chartClose: Int
+    val chartClose: Int,
+    val recordDirection: Char // 'u', 'd', 'n'
 )
 
