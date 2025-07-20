@@ -1,5 +1,6 @@
 package com.example.quantest
 
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -24,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.Modifier
 import androidx.compose.foundation.layout.*
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.quantest.ui.theme.Navy
@@ -50,6 +52,9 @@ fun StockDetailScreen(
     onDetailClick: () -> Unit,
     onBuyClick: () -> Unit
 ) {
+    LaunchedEffect(stockId) {
+        Log.d("StockDetailScreen", "Received stockId: $stockId")
+    }
     var selectedTab by remember { mutableStateOf(0) }
     val tabs = listOf("차트", "종목정보")
 

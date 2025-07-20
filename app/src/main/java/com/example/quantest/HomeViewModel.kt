@@ -16,7 +16,8 @@ class HomeViewModel : ViewModel() {
     var stockItems by mutableStateOf<List<StockItem>>(emptyList())
         private set
 
-    fun loadStocks(category: String, date: String = LocalDate.now().toString()) {
+    //fun loadStocks(category: String, date: String = LocalDate.now().toString()) {
+    fun loadStocks(category: String, date: String = "2025-07-18") {
     viewModelScope.launch {
             try {
                 val response = ApiClient.stockApiService.getStockRankings(category, date)

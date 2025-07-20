@@ -1,5 +1,6 @@
 package com.example.quantest
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -24,7 +25,10 @@ import com.example.quantest.ui.theme.Navy
 import com.example.quantest.ui.theme.Red
 
 @Composable
-fun HomeScreen(viewModel: HomeViewModel = viewModel()) {
+fun HomeScreen(
+    viewModel: HomeViewModel = viewModel(),
+    onStockClick: (Int) -> Unit
+) {
     var selectedIndex by remember { mutableStateOf(0) }
 
     val categoryMap = listOf("TURNOVER", "VOLUME", "RISE", "FALL")
@@ -45,7 +49,13 @@ fun HomeScreen(viewModel: HomeViewModel = viewModel()) {
                 selectedIndex = selectedIndex,
                 onTabSelected = { selectedIndex = it }
             )
-            RankingList(stockItems)
+            RankingList(
+                items = stockItems,
+                onItemClick = { stockId ->
+                    Log.d("HomeScreen", "Clicked stockId: $stockId")
+                    onStockClick(stockId)
+                }
+            )
         }
     }
 }
@@ -122,23 +132,25 @@ fun FilterTabs(
 }
 
 @Composable
-fun RankingList(items: List<StockItem>) {
+fun RankingList(items: List<StockItem>, onItemClick: (Int) -> Unit) {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
             .padding(top = 8.dp)
     ) {
         items(items.size) { index ->
-            StockRankItem(items[index])
+            val item = items[index]
+            StockRankItem(item = item, onClick = { onItemClick(item.id) })
         }
     }
 }
 
 @Composable
-fun StockRankItem(item: StockItem) {
+fun StockRankItem(item: StockItem, onClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .clickable { onClick() }
             .padding(horizontal = 16.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
