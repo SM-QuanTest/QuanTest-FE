@@ -20,5 +20,9 @@ interface StockApi {
         @Query("startDate") startDate: String,
         @Query("endDate") endDate: String
     ): Response<BaseResponse<List<ChartData>>>
-    
+
+    // 종목 일봉 차트 단건 조회
+    @GET("/charts/{stockId}/latest")
+    suspend fun getLatestChartData(@Path("stockId") stockId: Int): Response<BaseResponse<LatestChartData>>
+
 }

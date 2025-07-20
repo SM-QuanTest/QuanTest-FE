@@ -14,6 +14,7 @@ class StockDetailViewModel : ViewModel() {
 
     var chartData by mutableStateOf<List<ChartData>>(emptyList())
         private set
+    var latestChartData by mutableStateOf<LatestChartData?>(null)
 
     fun fetchChartData(stockId: Int) {
         val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
@@ -39,6 +40,25 @@ class StockDetailViewModel : ViewModel() {
                 }
             } catch (e: Exception) {
                 Log.e("ChartFetch", "Exception: ${e.localizedMessage}", e)
+            }
+        }
+
+        // 최신 일봉 데이터 호출
+        fetchLatestChartData(stockId)
+    }
+
+    private fun fetchLatestChartData(stockId: Int) {
+        viewModelScope.launch {
+            try {
+                val response = RetrofitClient.stockApi.getLatestChartData(stockId)
+                if (response.isSuccessful) {
+                    latestChartData = response.body()?.data
+                    Log.d("LatestChart", "불러온 데이터: $latestChartData")
+                } else {
+                    Log.e("LatestChart", "실패: ${response.code()}")
+                }
+            } catch (e: Exception) {
+                Log.e("LatestChart", "에러: ${e.message}")
             }
         }
     }

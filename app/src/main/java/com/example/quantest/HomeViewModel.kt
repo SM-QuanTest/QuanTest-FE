@@ -16,7 +16,7 @@ class HomeViewModel : ViewModel() {
         private set
 
     //fun loadStocks(category: String, date: String = LocalDate.now().toString()) {
-    fun loadStocks(category: String, date: String = "2025-07-18") {
+    fun loadStocks(category: String, date: String = "2025-07-17") {
     viewModelScope.launch {
             try {
                 val response = RetrofitClient.stockApi.getStockRankings(category, date)
@@ -40,7 +40,7 @@ class HomeViewModel : ViewModel() {
     }
 
     private fun StockRankingDto.toStockItem(rank: Int): StockItem {
-        val direction = when (recordDirection.lowercaseChar()) {
+        val direction = when (recordDirection?.lowercaseChar()) {
             'u' -> ChangeDirection.UP
             'd' -> ChangeDirection.DOWN
             'n' -> ChangeDirection.FLAT
