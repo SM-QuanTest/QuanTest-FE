@@ -86,13 +86,34 @@ fun StockDetailScreen(
         )
 
         // 종목 기본 정보
+        val latest = viewModel.latestChartData
+
         Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-            Text(text = "엔비디아", fontWeight = FontWeight.Bold, fontSize = 18.sp)
-            Text(text = "54,321원", fontWeight = FontWeight.ExtraBold, fontSize = 28.sp)
             Text(
-                text = "+308원 (0.6%)",
+                text = latest?.stockName ?: "-",
+                fontWeight = FontWeight.Bold,
+                fontSize = 18.sp
+            )
+            Text(
+                text = latest?.chartClose?.let { "%,d원".format(it) } ?: "-원",
+                fontWeight = FontWeight.ExtraBold,
+                fontSize = 28.sp
+            )
+
+            val priceChange = latest?.priceChange ?: 0
+            val changePercent = latest?.chartChangePercentage ?: 0.0
+            val isRise = priceChange >= 0
+            val changeText = if (latest != null) {
+                val sign = if (isRise) "+" else "-"
+                "$sign${kotlin.math.abs(priceChange)}원 (${String.format("%.2f", kotlin.math.abs(changePercent))}%)"
+            } else {
+                ""
+            }
+
+            Text(
+                text = changeText,
                 fontSize = 14.sp,
-                color = Color.Red
+                color = if (isRise) Color.Red else Color.Blue
             )
         }
 
@@ -111,7 +132,7 @@ fun StockDetailScreen(
 
         when (selectedTab) {
             0 -> ChartTabContent(viewModel.chartData)
-            1 -> InfoTabContent()
+            1 -> InfoTabContent(viewModel)
         }
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -164,13 +185,6 @@ fun chartDataToEntries(data: List<ChartData>): List<CandleEntry> {
 @Composable
 fun ChartTabContent(data: List<ChartData>) {
 
-    LaunchedEffect(data) {
-        Log.d("ChartDebug", "chartData size: ${data.size}")
-        data.forEachIndexed { i, d ->
-            Log.d("ChartDebug", "[$i] ${d.chartDate} | O:${d.chartOpen}, H:${d.chartHigh}, L:${d.chartLow}, C:${d.chartClose}")
-        }
-    }
-
     if (data.isEmpty()) return
 
     val entries = chartDataToEntries(data)
@@ -214,10 +228,12 @@ fun ChartTabContent(data: List<ChartData>) {
 
 // 종목 정보 탭
 @Composable
-fun InfoTabContent() {
+fun InfoTabContent(viewModel: StockDetailViewModel) {
+    val data = viewModel.latestChartData
+
     Column(modifier = Modifier.padding(16.dp)) {
         Text(text = "시세", fontWeight = FontWeight.Bold)
-        Text(text = "5월 23일 기준", color = Color.Gray, fontSize = 12.sp)
+        Text(text = "${data?.chartDate ?: ""} 기준", color = Color.Gray, fontSize = 12.sp)
 
         Spacer(modifier = Modifier.height(8.dp))
 
@@ -236,19 +252,19 @@ fun InfoTabContent() {
         Column {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 Text("시가", fontWeight = FontWeight.SemiBold)
-                Text("54,300원")
+                Text("${data?.chartOpen ?: "-"}원")
             }
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 Text("종가", fontWeight = FontWeight.SemiBold)
-                Text("54,500원")
+                Text("${data?.chartClose ?: "-"}원")
             }
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 Text("거래량", fontWeight = FontWeight.SemiBold)
-                Text("14,557,811주")
+                Text("${data?.chartVolume ?: "-"}주")
             }
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 Text("거래대금", fontWeight = FontWeight.SemiBold)
-                Text("7,907억원")
+                Text("${data?.chartTurnover ?: "-"}원")
             }
         }
     }
