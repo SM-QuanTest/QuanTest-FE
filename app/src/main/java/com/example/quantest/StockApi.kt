@@ -25,4 +25,10 @@ interface StockApi {
     @GET("/charts/{stockId}/latest")
     suspend fun getLatestChartData(@Path("stockId") stockId: Int): Response<BaseResponse<LatestChartData>>
 
+    // 패턴 다건 조회(상승/하락)
+    @GET("/patterns")
+    suspend fun getPatterns(
+        @Query("type") type: String? = null // "BULLISH" or "BEARISH"
+    ): Response<BaseResponse<List<PatternResponse>>>
+
 }
