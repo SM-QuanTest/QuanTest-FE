@@ -1,5 +1,6 @@
 package com.example.quantest
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -19,21 +20,21 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
-
-@Preview(showBackground = true)
-@Composable
-fun PatternScreenPreview() {
-    MaterialTheme {
-        PatternScreen()
-    }
-}
+import androidx.navigation.NavController
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
-fun PatternScreen() {
+fun PatternScreen(
+    viewModel: PatternViewModel = viewModel()
+    //onPatternClick: (Int) -> Unit
+) {
     val tabs = listOf("상승형 패턴", "하락형 패턴")
     var selectedTabIndex by remember { mutableStateOf(0) }
 
-    val patternItems = List(10) { "망치형" } // 임시 데이터
+    val patternList by viewModel.patterns.collectAsState()
+    val filteredPatterns = patternList.filter {
+        if (selectedTabIndex == 0) it.patternDirection == "상승형" else it.patternDirection == "하락형"
+    }
 
     Scaffold(
         topBar = { HomeTopBar() }
@@ -66,8 +67,14 @@ fun PatternScreen() {
                 verticalArrangement = Arrangement.spacedBy(16.dp),
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                items(patternItems) { item ->
-                    PatternCard(item)
+                items(filteredPatterns) { pattern ->
+                    PatternCard(
+                        patternName = pattern.patternName,
+                        onClick = {
+                            Log.d("PatternScreen", "Clicked patternId: ${pattern.patternId}")
+                            //onPatternClick(pattern.patternId)
+                        }
+                    )
                 }
             }
         }
@@ -75,7 +82,10 @@ fun PatternScreen() {
 }
 
 @Composable
-fun PatternCard(patternName: String) {
+fun PatternCard(
+    patternName: String,
+    onClick: () -> Unit
+) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
