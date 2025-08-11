@@ -18,7 +18,13 @@ fun NavGraph(navController: NavHostController) {
             )
         }
         composable(BottomNavItem.Filter.route) { FilterScreen() }
-        composable(BottomNavItem.Pattern.route) { PatternScreen() }
+        composable(BottomNavItem.Pattern.route) {
+            PatternScreen(
+                onPatternClick = { patternId ->
+                    navController.navigate("stockList/$patternId")
+                }
+            )
+        }
         composable(BottomNavItem.Menu.route) { MenuScreen() }
 
         // 종목 상세 화면 경로
@@ -32,6 +38,21 @@ fun NavGraph(navController: NavHostController) {
                 onBackClick = { navController.popBackStack() },
                 onDetailClick = { /* 상세 페이지 이동 등 추가 동작 */ },
                 onBuyClick = { /* 구매 버튼 클릭 동작 */ }
+            )
+        }
+
+        // 패턴별 종목 리스트 화면
+        composable(
+            route = "stockList/{patternId}",
+            arguments = listOf(navArgument("patternId") { type = NavType.IntType })
+        ) { backStackEntry ->
+            val patternId = backStackEntry.arguments?.getInt("patternId") ?: 0
+            StockListScreen(
+                patternId = patternId,
+                onBackClick = { navController.popBackStack() },
+                onStockClick = { stockId ->
+                    navController.navigate("stockDetail/$stockId")
+                }
             )
         }
     }

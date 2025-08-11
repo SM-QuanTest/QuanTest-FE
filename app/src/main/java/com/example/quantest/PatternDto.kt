@@ -6,9 +6,10 @@ data class Pattern(
     val patternDirection: String // "상승형" or "하락형"
 )
 
-// API 응답용 DTO
-data class PatternResponse(
-    val patternId: Int,
-    val patternName: String,
-    val patternDirection: String
+data class PatternStockItem(
+    val stockId: Long,
+    val stockName: String,
+    val chartChangePercentage: Double,
+    val chartClose: Int,
+    val recordDirection: Char
 )

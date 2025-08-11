@@ -22,7 +22,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
@@ -30,55 +29,26 @@ import com.example.quantest.model.ChangeDirection
 import com.example.quantest.ui.theme.Blue
 import com.example.quantest.ui.theme.Red
 import androidx.compose.foundation.lazy.items
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewStockListScreen() {
-    val mockStockList = listOf(
-        StockItem(
-            id = 1,
-            rank = 1,
-            name = "삼성전자",
-            imageUrl = "",
-            price = "75,300원",
-            change = "+1.25%",
-            direction = ChangeDirection.UP
-        ),
-        StockItem(
-            id = 2,
-            rank = 2,
-            name = "LG에너지솔루션",
-            imageUrl = "",
-            price = "420,000원",
-            change = "0.00%",
-            direction = ChangeDirection.FLAT
-        ),
-        StockItem(
-            id = 3,
-            rank = 3,
-            name = "카카오",
-            imageUrl = "",
-            price = "51,700원",
-            change = "-0.80%",
-            direction = ChangeDirection.DOWN
-        )
-    )
-
-    StockListScreen(
-        title = "망치형 패턴",
-        stockItems = mockStockList,
-        onBackClick = {} // Preview용 빈 콜백
-    )
-}
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StockListScreen(
-    title: String,
-    stockItems: List<StockItem>,
-    onBackClick: () -> Unit
+    patternId: Int,
+    onBackClick: () -> Unit,
+    onStockClick: (Long) -> Unit,
+    viewModel: StockListViewModel = viewModel()
 ) {
     var selectedTab by remember { mutableStateOf(TabType.ALL) }
+
+    val stocks by viewModel.stocks.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
+
+    LaunchedEffect(patternId) {
+        viewModel.loadStocks(patternId.toLong())
+    }
 
     Scaffold(
         topBar = {
@@ -86,7 +56,7 @@ fun StockListScreen(
                 // 타이틀 중앙 정렬
                 title = {
                     Text(
-                        text = title,
+                        text = "임시 제목",
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold
                     )
@@ -102,35 +72,63 @@ fun StockListScreen(
             )
         }
     ) { innerPadding ->
-        Column(modifier = Modifier
-            .padding(innerPadding)
-            .fillMaxSize()) {
-
+        Column(
+            modifier = Modifier
+                .padding(innerPadding)
+                .fillMaxSize()
+        ) {
+            // 상단 탭
             StockTabBar(
                 selectedTab = selectedTab,
                 onTabSelected = { selectedTab = it }
             )
 
-            // TODO: 리스트 항목 클릭 시 상세 화면으로 이동 처리
-            LazyColumn {
-                items(stockItems.filterByTab(selectedTab)) { item ->
-                    StockListItem(item = item)
+            if (isLoading) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
+            } else {
+                // 필터된 리스트 표시
+                LazyColumn {
+                    items(stocks.filterByTab(selectedTab)) { stock ->
+                        StockListItem(
+                            name = stock.stockName,
+                            price = stock.chartClose.toString(),
+                            change = "${(stock.chartChangePercentage * 100).format(2)}%",
+                            direction = stock.toChangeDirection(),
+                            onClick = { onStockClick(stock.stockId) }
+                        )
+                    }
                 }
             }
         }
     }
 }
 
+fun Double.format(digits: Int) = "%.${digits}f".format(this)
+
 // 상단 탭
+enum class ChangeDirection { UP, DOWN, FLAT }
+
+fun PatternStockItem.toChangeDirection(): ChangeDirection {
+    return when (recordDirection.lowercaseChar()) {
+        'u' -> ChangeDirection.UP
+        'd' -> ChangeDirection.DOWN
+        else -> ChangeDirection.FLAT
+    }
+}
+
+fun List<PatternStockItem>.filterByTab(tab: TabType): List<PatternStockItem> = when (tab) {
+    TabType.ALL -> this
+    TabType.UP -> filter { it.toChangeDirection() == ChangeDirection.UP }
+    TabType.DOWN -> filter { it.toChangeDirection() == ChangeDirection.DOWN }
+    TabType.HOLD -> filter { it.toChangeDirection() == ChangeDirection.FLAT }
+}
 
 // 탭 필터 기능
-// ChangeDirection을 기준으로 분기
-fun List<StockItem>.filterByTab(tab: TabType): List<StockItem> = when (tab) {
-    TabType.ALL -> this
-    TabType.UP -> filter { it.direction == ChangeDirection.UP }
-    TabType.DOWN -> filter { it.direction == ChangeDirection.DOWN }
-    TabType.HOLD -> filter { it.direction == ChangeDirection.FLAT }
-}
 
 enum class TabType {
     ALL,   // 전체
@@ -146,17 +144,14 @@ fun StockTabBar(
     onTabSelected: (TabType) -> Unit
 ) {
     val tabs = listOf(TabType.ALL, TabType.UP, TabType.DOWN, TabType.HOLD)
-    TabRow(
-        selectedTabIndex = tabs.indexOf(selectedTab),
-        contentColor = Color.Black
-    ) {
-        tabs.forEachIndexed { index, tab ->
+    TabRow(selectedTabIndex = tabs.indexOf(selectedTab)) {
+        tabs.forEach { tab ->
             Tab(
                 selected = selectedTab == tab,
                 onClick = { onTabSelected(tab) },
                 text = {
                     Text(
-                        text = when (tab) {
+                        when (tab) {
                             TabType.ALL -> "전체"
                             TabType.UP -> "상승"
                             TabType.DOWN -> "하락"
@@ -171,7 +166,13 @@ fun StockTabBar(
 
 // 리스트 아이템
 @Composable
-fun StockListItem(item: StockItem) {
+fun StockListItem(
+    name: String,
+    price: String,
+    change: String,
+    direction: ChangeDirection,
+    onClick: () -> Unit
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -180,8 +181,8 @@ fun StockListItem(item: StockItem) {
     ) {
         // 종목 이미지
         AsyncImage(
-            model = item.imageUrl,
-            contentDescription = "${item.name} 로고",
+            model = "",
+            contentDescription = "${name} 로고",
             modifier = Modifier
                 .size(36.dp)
                 .clip(RoundedCornerShape(18.dp)),
@@ -192,14 +193,14 @@ fun StockListItem(item: StockItem) {
         Spacer(modifier = Modifier.width(12.dp))
 
         Column(modifier = Modifier.weight(1f)) {
-            Text(text = item.name, fontWeight = FontWeight.Bold)
+            Text(text = name, fontWeight = FontWeight.Bold)
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(text = item.price, fontSize = 12.sp)
+                Text(text = price, fontSize = 12.sp)
                 Spacer(modifier = Modifier.width(4.dp))
                 Text(
-                    text = item.change,
+                    text = change,
                     fontSize = 12.sp,
-                    color = when (item.direction) {
+                    color = when (direction) {
                         ChangeDirection.UP -> Red
                         ChangeDirection.DOWN -> Blue
                         ChangeDirection.FLAT -> MaterialTheme.colorScheme.onSurfaceVariant
@@ -209,7 +210,7 @@ fun StockListItem(item: StockItem) {
         }
 
         // 방향 아이콘
-        when (item.direction) {
+        when (direction) {
             ChangeDirection.UP -> Icon(
                 painter = painterResource(id = R.drawable.ic_arrow_up),
                 contentDescription = "상승",

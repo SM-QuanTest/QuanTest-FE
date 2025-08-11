@@ -70,7 +70,7 @@ class HomeViewModel : ViewModel() {
             rank = rank + 1,
             name = stockName,
             imageUrl = "", // 없으면 빈 문자열
-            price = "${chartClose}원",
+            price = chartClose,
             change = "${if (chartChangePercentage >= 0) "+" else ""}${chartChangePercentage}%",
             direction = direction
         )

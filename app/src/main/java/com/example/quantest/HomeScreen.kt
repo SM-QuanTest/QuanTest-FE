@@ -176,7 +176,7 @@ fun StockRankItem(item: StockItem, onClick: () -> Unit) {
         Column(modifier = Modifier.weight(1f)) {
             Text(text = item.name, fontWeight = FontWeight.Bold)
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(text = item.price, fontSize = 13.sp)
+                Text(text = formatPrice(item.price), fontSize = 13.sp)
                 Spacer(modifier = Modifier.width(4.dp))
                 Text(
                     text = item.change,
