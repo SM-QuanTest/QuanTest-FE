@@ -19,14 +19,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.navigation.NavController
 import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
 fun PatternScreen(
-    viewModel: PatternViewModel = viewModel()
-    //onPatternClick: (Int) -> Unit
+    viewModel: PatternViewModel = viewModel(),
+    onPatternClick: (Int) -> Unit
 ) {
     val tabs = listOf("상승형 패턴", "하락형 패턴")
     var selectedTabIndex by remember { mutableStateOf(0) }
@@ -72,7 +70,7 @@ fun PatternScreen(
                         patternName = pattern.patternName,
                         onClick = {
                             Log.d("PatternScreen", "Clicked patternId: ${pattern.patternId}")
-                            //onPatternClick(pattern.patternId)
+                            onPatternClick(pattern.patternId)
                         }
                     )
                 }
@@ -89,7 +87,7 @@ fun PatternCard(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { }
+            .clickable { onClick() }
             .padding(horizontal = 12.dp)
     ) {
         Box(

@@ -29,6 +29,11 @@ interface StockApi {
     @GET("/patterns")
     suspend fun getPatterns(
         @Query("type") type: String? = null // "BULLISH" or "BEARISH"
-    ): Response<BaseResponse<List<PatternResponse>>>
+    ): Response<BaseResponse<List<Pattern>>>
 
+    // 패턴 탐지된 종목 다건 조회
+    @GET("/patterns/{patternId}")
+    suspend fun getPatternStocks(
+        @Path("patternId") patternId: Long
+    ): Response<BaseResponse<List<PatternStockItem>>>
 }
