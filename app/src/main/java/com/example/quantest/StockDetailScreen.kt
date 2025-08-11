@@ -39,7 +39,6 @@ import android.graphics.Color as AndroidColor
 import android.graphics.Paint
 import com.github.mikephil.charting.components.XAxis
 
-
 @Preview(showBackground = true)
 @Composable
 fun StockDetailScreenPreview() {
@@ -95,7 +94,7 @@ fun StockDetailScreen(
                 fontSize = 18.sp
             )
             Text(
-                text = latest?.chartClose?.let { "%,d원".format(it) } ?: "-원",
+                text = latest?.chartClose?.let { formatPrice(it) } ?: "-원",
                 fontWeight = FontWeight.ExtraBold,
                 fontSize = 28.sp
             )
@@ -105,7 +104,7 @@ fun StockDetailScreen(
             val isRise = priceChange >= 0
             val changeText = if (latest != null) {
                 val sign = if (isRise) "+" else "-"
-                "$sign${kotlin.math.abs(priceChange)}원 (${String.format("%.2f", kotlin.math.abs(changePercent))}%)"
+                "$sign${formatPrice(kotlin.math.abs(priceChange))} (${String.format("%.2f", kotlin.math.abs(changePercent))}%)"
             } else {
                 ""
             }
@@ -237,7 +236,8 @@ fun InfoTabContent(viewModel: StockDetailViewModel) {
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // 1년 최저가 ~ 최고가 슬라이더 (단순 텍스트 표현 예시)
+        // 1년 최저가 ~ 최고가 슬라이더
+        // TODO: 실제 데이터 연동
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
@@ -252,19 +252,19 @@ fun InfoTabContent(viewModel: StockDetailViewModel) {
         Column {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 Text("시가", fontWeight = FontWeight.SemiBold)
-                Text("${data?.chartOpen ?: "-"}원")
+                Text(formatPrice(data?.chartOpen))
             }
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 Text("종가", fontWeight = FontWeight.SemiBold)
-                Text("${data?.chartClose ?: "-"}원")
+                Text(formatPrice(data?.chartClose))
             }
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 Text("거래량", fontWeight = FontWeight.SemiBold)
-                Text("${data?.chartVolume ?: "-"}주")
+                Text(formatVolume(data?.chartVolume))
             }
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 Text("거래대금", fontWeight = FontWeight.SemiBold)
-                Text("${data?.chartTurnover ?: "-"}원")
+                Text(formatPrice(data?.chartTurnover))
             }
         }
     }

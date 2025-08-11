@@ -19,6 +19,7 @@ class StockDetailViewModel : ViewModel() {
     fun fetchChartData(stockId: Int) {
         val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
         val calendar = Calendar.getInstance()
+        // TODO: 실제 날짜로 변경
         //val endDate = sdf.format(calendar.time)
         val endDate = "2024-04-09"
         calendar.add(Calendar.DAY_OF_YEAR, -30)

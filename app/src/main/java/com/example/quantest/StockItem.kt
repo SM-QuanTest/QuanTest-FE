@@ -5,7 +5,7 @@ data class StockItem(
     val rank: Int?,
     val name: String,
     val imageUrl: String,
-    val price: String,
+    val price: Int,
     val change: String,
     val direction: ChangeDirection
 )
