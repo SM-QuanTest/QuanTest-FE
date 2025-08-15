@@ -71,7 +71,7 @@ fun NavGraph(navController: NavHostController) {
         // 검색 화면
         composable("search") {
             SearchScreen(
-                //onBackClick = { navController.popBackStack() }
+                onBackClick = { navController.popBackStack() }
             )
         }
     }
