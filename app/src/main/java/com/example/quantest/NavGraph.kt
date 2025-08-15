@@ -12,14 +12,26 @@ fun NavGraph(navController: NavHostController) {
     NavHost(navController = navController, startDestination = BottomNavItem.Home.route) {
         composable(BottomNavItem.Home.route) {
             HomeScreen(
+                onSearchClick = {
+                    navController.navigate("search")
+                },
                 onStockClick = { stockId ->
                     navController.navigate("stockDetail/$stockId")
                 }
             )
         }
-        composable(BottomNavItem.Filter.route) { FilterScreen() }
+        composable(BottomNavItem.Filter.route) {
+            FilterScreen(
+                onSearchClick = {
+                    navController.navigate("search")
+                }
+            )
+        }
         composable(BottomNavItem.Pattern.route) {
             PatternScreen(
+                onSearchClick = {
+                    navController.navigate("search")
+                },
                 onPatternClick = { patternId ->
                     navController.navigate("stockList/$patternId")
                 }
@@ -27,7 +39,7 @@ fun NavGraph(navController: NavHostController) {
         }
         composable(BottomNavItem.Menu.route) { MenuScreen() }
 
-        // 종목 상세 화면 경로
+        // 종목 상세 화면
         composable(
             route = "stockDetail/{stockId}",
             arguments = listOf(navArgument("stockId") { type = NavType.IntType })
@@ -53,6 +65,13 @@ fun NavGraph(navController: NavHostController) {
                 onStockClick = { stockId ->
                     navController.navigate("stockDetail/$stockId")
                 }
+            )
+        }
+
+        // 검색 화면
+        composable("search") {
+            SearchScreen(
+                //onBackClick = { navController.popBackStack() }
             )
         }
     }

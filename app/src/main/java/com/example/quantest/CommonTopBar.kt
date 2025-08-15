@@ -11,10 +11,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CommonTopBar() {
+fun CommonTopBar(onSearchClick: () -> Unit) {
     TopAppBar(
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = MaterialTheme.colorScheme.primaryContainer,
@@ -22,7 +23,8 @@ fun CommonTopBar() {
         ),
         title = {},
         actions = {
-            IconButton(onClick = { /*TODO*/ }) {
+            IconButton(
+                onClick = { onSearchClick() }) {
                 Image(
                     painter = painterResource(id = R.drawable.ic_search),
                     contentDescription = "검색",

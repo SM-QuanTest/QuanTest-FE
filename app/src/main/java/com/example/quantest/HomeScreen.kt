@@ -27,6 +27,7 @@ import com.example.quantest.ui.theme.Red
 @Composable
 fun HomeScreen(
     viewModel: HomeViewModel = viewModel(),
+    onSearchClick: () -> Unit,
     onStockClick: (Int) -> Unit
 ) {
     var selectedIndex by remember { mutableStateOf(0) }
@@ -41,7 +42,7 @@ fun HomeScreen(
     val stockItems = viewModel.stockItems
 
     Scaffold(
-        topBar = { CommonTopBar() }
+        topBar = { CommonTopBar(onSearchClick = onSearchClick) }
     ) { innerPadding ->
         Column(modifier = Modifier.padding(innerPadding)) {
             RankingTitle()
