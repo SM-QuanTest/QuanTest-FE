@@ -10,9 +10,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun FilterScreen() {
+fun FilterScreen(onSearchClick: () -> Unit) {
     Scaffold(
-        topBar = { HomeTopBar() }
+        topBar = { CommonTopBar(onSearchClick = onSearchClick) }
     ){ innerPadding ->
         Column(modifier = Modifier.padding(innerPadding)) {
             Text(

@@ -24,6 +24,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 @Composable
 fun PatternScreen(
     viewModel: PatternViewModel = viewModel(),
+    onSearchClick: () -> Unit,
     onPatternClick: (Int) -> Unit
 ) {
     val tabs = listOf("상승형 패턴", "하락형 패턴")
@@ -35,7 +36,7 @@ fun PatternScreen(
     }
 
     Scaffold(
-        topBar = { HomeTopBar() }
+        topBar = { CommonTopBar(onSearchClick = onSearchClick) }
     ) { innerPadding ->
         Column(modifier = Modifier
             .padding(innerPadding)

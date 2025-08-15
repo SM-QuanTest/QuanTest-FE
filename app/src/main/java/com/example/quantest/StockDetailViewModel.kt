@@ -21,7 +21,7 @@ class StockDetailViewModel : ViewModel() {
         val calendar = Calendar.getInstance()
         // TODO: 실제 날짜로 변경
         //val endDate = sdf.format(calendar.time)
-        val endDate = "2024-04-09"
+        val endDate = "2025-08-04"
         calendar.add(Calendar.DAY_OF_YEAR, -30)
         //val startDate = sdf.format(calendar.time)
         val startDate = "2024-01-01"

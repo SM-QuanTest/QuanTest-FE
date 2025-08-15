@@ -38,6 +38,9 @@ import com.github.mikephil.charting.data.CandleEntry
 import android.graphics.Color as AndroidColor
 import android.graphics.Paint
 import com.github.mikephil.charting.components.XAxis
+import com.github.mikephil.charting.formatter.ValueFormatter
+import java.text.SimpleDateFormat
+import java.util.*
 
 @Preview(showBackground = true)
 @Composable
@@ -100,7 +103,7 @@ fun StockDetailScreen(
             )
 
             val priceChange = latest?.priceChange ?: 0
-            val changePercent = latest?.chartChangePercentage ?: 0.0
+            val changePercent = latest?.chartChangePercent ?: 0.0
             val isRise = priceChange >= 0
             val changeText = if (latest != null) {
                 val sign = if (isRise) "+" else "-"
@@ -168,7 +171,7 @@ fun StockDetailScreen(
     }
 }
 
-// 차트 탭
+// 차트 데이터 → CandleEntry 변환
 fun chartDataToEntries(data: List<ChartData>): List<CandleEntry> {
     return data.mapIndexed { index, item ->
         CandleEntry(
@@ -181,6 +184,29 @@ fun chartDataToEntries(data: List<ChartData>): List<CandleEntry> {
     }
 }
 
+// 날짜 포맷터 (yyyy-MM-dd → MM/dd)
+class ChartDateFormatter(
+    private val data: List<ChartData>
+) : ValueFormatter() {
+    private val sdfInput = SimpleDateFormat("yyyy-MM-dd", Locale.KOREA)
+    private val sdfOutput = SimpleDateFormat("MM/dd", Locale.KOREA)
+
+    override fun getFormattedValue(value: Float): String {
+        val index = value.toInt()
+        return if (index in data.indices) {
+            try {
+                val date = sdfInput.parse(data[index].chartDate)
+                date?.let { sdfOutput.format(it) } ?: ""
+            } catch (e: Exception) {
+                ""
+            }
+        } else {
+            ""
+        }
+    }
+}
+
+// 차트 탭
 @Composable
 fun ChartTabContent(data: List<ChartData>) {
 
@@ -206,13 +232,36 @@ fun ChartTabContent(data: List<ChartData>) {
             chart.data = CandleData(dataSet)
 
             chart.apply {
-                xAxis.position = XAxis.XAxisPosition.BOTTOM
+                // X축
+                xAxis.apply {
+                    position = XAxis.XAxisPosition.BOTTOM
+                    granularity = 1f // 1일 단위
+                    setDrawGridLines(false)
+                    valueFormatter = ChartDateFormatter(data)
+                }
+
+                // 초기 확대 상태
+                setVisibleXRangeMaximum(60f) // X축에 한 번에 보일 최대 개수
+                moveViewToX(data.size - 60f) // 마지막 데이터 쪽으로 이동
 
                 axisLeft.isEnabled = false
                 axisRight.isEnabled = true
 
                 description.isEnabled = false
                 legend.isEnabled = false
+
+                // 확대/축소, 드래그 활성화
+                setPinchZoom(true)        // 핀치로 X/Y 동시에 확대
+                isDragEnabled = true      // 드래그 가능
+                setScaleEnabled(true)     // 확대/축소 가능
+                setDrawGridBackground(false)
+
+                // 더블탭 확대
+                isDoubleTapToZoomEnabled = true
+
+                // 드래그 후 관성 스크롤
+                isDragDecelerationEnabled = true
+                dragDecelerationFrictionCoef = 0.9f
             }
 
             chart.invalidate()
@@ -238,13 +287,13 @@ fun InfoTabContent(viewModel: StockDetailViewModel) {
 
         // 1년 최저가 ~ 최고가 슬라이더
         // TODO: 실제 데이터 연동
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text("1년 최저가\n49,900원", fontSize = 12.sp)
-            Text("1년 최고가\n88,800원", fontSize = 12.sp)
-        }
+//        Row(
+//            modifier = Modifier.fillMaxWidth(),
+//            horizontalArrangement = Arrangement.SpaceBetween
+//        ) {
+//            Text("1년 최저가\n49,900원", fontSize = 12.sp)
+//            Text("1년 최고가\n88,800원", fontSize = 12.sp)
+//        }
 
         Spacer(modifier = Modifier.height(12.dp))
 

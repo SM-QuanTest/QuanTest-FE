@@ -27,6 +27,7 @@ import com.example.quantest.ui.theme.Red
 @Composable
 fun HomeScreen(
     viewModel: HomeViewModel = viewModel(),
+    onSearchClick: () -> Unit,
     onStockClick: (Int) -> Unit
 ) {
     var selectedIndex by remember { mutableStateOf(0) }
@@ -41,7 +42,7 @@ fun HomeScreen(
     val stockItems = viewModel.stockItems
 
     Scaffold(
-        topBar = { HomeTopBar() }
+        topBar = { CommonTopBar(onSearchClick = onSearchClick) }
     ) { innerPadding ->
         Column(modifier = Modifier.padding(innerPadding)) {
             RankingTitle()
@@ -58,27 +59,6 @@ fun HomeScreen(
             )
         }
     }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun HomeTopBar() {
-    TopAppBar(
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer,
-            titleContentColor = MaterialTheme.colorScheme.primary,
-        ),
-        title = {},
-        actions = {
-            IconButton(onClick = { /*TODO*/ }) {
-                Image(
-                    painter = painterResource(id = R.drawable.ic_search),
-                    contentDescription = "검색",
-                    modifier = Modifier.size(24.dp)
-                )
-            }
-        }
-    )
 }
 
 @Composable
@@ -151,25 +131,29 @@ fun StockRankItem(item: StockItem, onClick: () -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onClick() }
-            .padding(horizontal = 16.dp, vertical = 8.dp),
+            .padding(horizontal = 24.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
+        // 순위 텍스트
         Text(
             text = item.rank.toString(),
             fontWeight = FontWeight.Bold,
-            modifier = Modifier.width(24.dp),
+            modifier = Modifier
+                .width(32.dp)
+                .wrapContentWidth(Alignment.CenterHorizontally),
             color = Navy
         )
 
-        AsyncImage(
-            model = item.imageUrl,
-            contentDescription = "${item.name} 로고",
-            modifier = Modifier
-                .size(40.dp)
-                .clip(RoundedCornerShape(18.dp)),
-            placeholder = painterResource(id = R.drawable.ic_placeholder),
-            error = painterResource(id = R.drawable.ic_placeholder)
-        )
+//        // 로고 이미지
+//        AsyncImage(
+//            model = item.imageUrl,
+//            contentDescription = "${item.name} 로고",
+//            modifier = Modifier
+//                .size(40.dp)
+//                .clip(RoundedCornerShape(18.dp)),
+//            placeholder = painterResource(id = R.drawable.ic_placeholder),
+//            error = painterResource(id = R.drawable.ic_placeholder)
+//        )
 
         Spacer(modifier = Modifier.width(12.dp))
 
