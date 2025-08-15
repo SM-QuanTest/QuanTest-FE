@@ -35,7 +35,7 @@ fun PatternScreen(
     }
 
     Scaffold(
-        topBar = { HomeTopBar() }
+        topBar = { CommonTopBar() }
     ) { innerPadding ->
         Column(modifier = Modifier
             .padding(innerPadding)

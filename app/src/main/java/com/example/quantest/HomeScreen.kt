@@ -41,7 +41,7 @@ fun HomeScreen(
     val stockItems = viewModel.stockItems
 
     Scaffold(
-        topBar = { HomeTopBar() }
+        topBar = { CommonTopBar() }
     ) { innerPadding ->
         Column(modifier = Modifier.padding(innerPadding)) {
             RankingTitle()
@@ -58,27 +58,6 @@ fun HomeScreen(
             )
         }
     }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun HomeTopBar() {
-    TopAppBar(
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer,
-            titleContentColor = MaterialTheme.colorScheme.primary,
-        ),
-        title = {},
-        actions = {
-            IconButton(onClick = { /*TODO*/ }) {
-                Image(
-                    painter = painterResource(id = R.drawable.ic_search),
-                    contentDescription = "검색",
-                    modifier = Modifier.size(24.dp)
-                )
-            }
-        }
-    )
 }
 
 @Composable

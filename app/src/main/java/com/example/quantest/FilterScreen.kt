@@ -12,7 +12,7 @@ import androidx.compose.ui.unit.sp
 @Composable
 fun FilterScreen() {
     Scaffold(
-        topBar = { HomeTopBar() }
+        topBar = { CommonTopBar() }
     ){ innerPadding ->
         Column(modifier = Modifier.padding(innerPadding)) {
             Text(
