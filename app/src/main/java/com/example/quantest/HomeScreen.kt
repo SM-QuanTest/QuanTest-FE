@@ -151,25 +151,29 @@ fun StockRankItem(item: StockItem, onClick: () -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onClick() }
-            .padding(horizontal = 16.dp, vertical = 8.dp),
+            .padding(horizontal = 24.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
+        // 순위 텍스트
         Text(
             text = item.rank.toString(),
             fontWeight = FontWeight.Bold,
-            modifier = Modifier.width(24.dp),
+            modifier = Modifier
+                .width(32.dp)
+                .wrapContentWidth(Alignment.CenterHorizontally),
             color = Navy
         )
 
-        AsyncImage(
-            model = item.imageUrl,
-            contentDescription = "${item.name} 로고",
-            modifier = Modifier
-                .size(40.dp)
-                .clip(RoundedCornerShape(18.dp)),
-            placeholder = painterResource(id = R.drawable.ic_placeholder),
-            error = painterResource(id = R.drawable.ic_placeholder)
-        )
+//        // 로고 이미지
+//        AsyncImage(
+//            model = item.imageUrl,
+//            contentDescription = "${item.name} 로고",
+//            modifier = Modifier
+//                .size(40.dp)
+//                .clip(RoundedCornerShape(18.dp)),
+//            placeholder = painterResource(id = R.drawable.ic_placeholder),
+//            error = painterResource(id = R.drawable.ic_placeholder)
+//        )
 
         Spacer(modifier = Modifier.width(12.dp))
 
