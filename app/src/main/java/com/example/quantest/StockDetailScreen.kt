@@ -103,7 +103,7 @@ fun StockDetailScreen(
             )
 
             val priceChange = latest?.priceChange ?: 0
-            val changePercent = latest?.chartChangePercentage ?: 0.0
+            val changePercent = latest?.chartChangePercent ?: 0.0
             val isRise = priceChange >= 0
             val changeText = if (latest != null) {
                 val sign = if (isRise) "+" else "-"

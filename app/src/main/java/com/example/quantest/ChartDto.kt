@@ -19,7 +19,7 @@ data class LatestChartData(
     val chartClose: Long,
     val chartVolume: Long,
     val chartTurnover: Long,
-    val chartChangePercentage: Double,
+    val chartChangePercent: Double,
     val stockName: String,
     val priceChange: Int
 )
