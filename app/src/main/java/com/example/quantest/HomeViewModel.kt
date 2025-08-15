@@ -33,8 +33,9 @@ class HomeViewModel : ViewModel() {
         return formatter.format(calendar.time)
     }
 
+    // TODO: 실제 날짜로 변경
     //fun loadStocks(category: String, date: String = getYesterdayFormatted()) {
-    fun loadStocks(category: String, date: String = "2025-07-17") {
+    fun loadStocks(category: String, date: String = "2025-08-04") {
     viewModelScope.launch {
             try {
                 val response = RetrofitClient.stockApi.getStockRankings(category, date)
