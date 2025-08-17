@@ -34,23 +34,24 @@ import androidx.compose.ui.viewinterop.AndroidView
 import com.github.mikephil.charting.charts.CombinedChart
 import com.github.mikephil.charting.data.CandleData
 import com.github.mikephil.charting.data.CandleDataSet
-import com.github.mikephil.charting.data.CandleEntry
 import android.graphics.Color as AndroidColor
 import android.graphics.Paint
+import androidx.compose.ui.graphics.Color.Companion.Gray
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.CombinedData
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.formatter.ValueFormatter
 import com.github.mikephil.charting.data.Entry
-import java.text.SimpleDateFormat
-import java.util.*
 import androidx.compose.ui.graphics.toArgb
 import com.example.quantest.ui.theme.Green
 import com.example.quantest.ui.theme.Red
 import com.example.quantest.ui.theme.Blue
 import com.example.quantest.ui.theme.Orange
 import com.example.quantest.ui.theme.Magenta
+import com.github.mikephil.charting.components.YAxis
+import com.github.mikephil.charting.data.BarData
+import com.github.mikephil.charting.data.BarDataSet
 
 @Preview(showBackground = true)
 @Composable
@@ -181,55 +182,6 @@ fun StockDetailScreen(
     }
 }
 
-// 차트 데이터 → CandleEntry 변환
-fun chartDataToEntries(data: List<ChartData>): List<CandleEntry> {
-    return data.mapIndexed { index, item ->
-        CandleEntry(
-            index.toFloat(),
-            item.chartHigh.toFloat(),
-            item.chartLow.toFloat(),
-            item.chartOpen.toFloat(),
-            item.chartClose.toFloat()
-        )
-    }
-}
-
-// 날짜 포맷터 (yyyy-MM-dd → MM/dd)
-class ChartDateFormatter(
-    private val data: List<ChartData>
-) : ValueFormatter() {
-    private val sdfInput = SimpleDateFormat("yyyy-MM-dd", Locale.KOREA)
-    private val sdfOutput = SimpleDateFormat("MM/dd", Locale.KOREA)
-
-    override fun getFormattedValue(value: Float): String {
-        val index = value.toInt()
-        return if (index in data.indices) {
-            try {
-                val date = sdfInput.parse(data[index].chartDate)
-                date?.let { sdfOutput.format(it) } ?: ""
-            } catch (e: Exception) {
-                ""
-            }
-        } else {
-            ""
-        }
-    }
-}
-
-// 이동평균 계산 함수
-fun calculateMA(data: List<ChartData>, period: Int): List<Entry> {
-    val result = mutableListOf<Entry>()
-    for (i in period - 1 until data.size) {
-        var sum = 0f
-        for (j in 0 until period) {
-            sum += data[i - j].chartClose.toFloat()
-        }
-        val avg = sum / period
-        result.add(Entry(i.toFloat(), avg))
-    }
-    return result
-}
-
 // 차트 탭
 @Composable
 fun ChartTabContent(data: List<ChartData>) {
@@ -243,8 +195,8 @@ fun ChartTabContent(data: List<ChartData>) {
             val view = LayoutInflater.from(context).inflate(R.layout.candle_chart, null) as FrameLayout
             val chart = view.findViewById<CombinedChart>(R.id.candleChart)
 
-            // --- 캔들 데이터셋 ---
-            val candleDataSet = CandleDataSet(candleEntries, "일봉").apply {
+            // --- 캔들 데이터 ---
+            val candleDataSet = CandleDataSet(chartDataToEntries(data), "일봉").apply {
                 color = AndroidColor.GRAY
                 shadowColor = AndroidColor.DKGRAY
                 shadowWidth = 0.7f
@@ -254,44 +206,40 @@ fun ChartTabContent(data: List<ChartData>) {
                 increasingPaintStyle = Paint.Style.FILL
                 neutralColor = AndroidColor.BLUE
                 setDrawValues(false)
+                axisDependency = YAxis.AxisDependency.RIGHT // 캔들은 우측 Y축
             }
             val candleData = CandleData(candleDataSet)
 
-            // --- 이동평균 데이터셋들 ---
-            val ma5 = LineDataSet(calculateMA(data, 5), "MA5").apply {
-                color = Green.toArgb()
+            // --- 이동평균선 ---
+            fun createMASet(maData: List<Entry>, label: String, colorInt: Int) = LineDataSet(maData, label).apply {
+                color = colorInt
                 lineWidth = 1.5f
                 setDrawCircles(false)
                 setDrawValues(false)
+                axisDependency = YAxis.AxisDependency.RIGHT // MA도 우측 Y축
             }
 
-            val ma20 = LineDataSet(calculateMA(data, 20), "MA20").apply {
-                color = Red.toArgb()
-                lineWidth = 1.5f
-                setDrawCircles(false)
+            val lineData = LineData(
+                createMASet(calculateMA(data, 5), "MA5", Green.toArgb()),
+                createMASet(calculateMA(data, 20), "MA20", Red.toArgb()),
+                createMASet(calculateMA(data, 60), "MA60", Orange.toArgb()),
+                createMASet(calculateMA(data, 120), "MA120", Magenta.toArgb())
+            )
+
+            // --- 거래량 ---
+            val volumeDataSet = BarDataSet(chartDataToVolumeEntries(data), "거래량").apply {
+                color = Gray.toArgb()
                 setDrawValues(false)
+                axisDependency = YAxis.AxisDependency.LEFT // 거래량은 좌측 Y축
             }
+            val barData = BarData(volumeDataSet)
 
-            val ma60 = LineDataSet(calculateMA(data, 60), "MA60").apply {
-                color = Orange.toArgb()
-                lineWidth = 1.5f
-                setDrawCircles(false)
-                setDrawValues(false)
+            // --- CombinedData ---
+            val combinedData = CombinedData().apply {
+                setData(candleData)
+                setData(lineData)
+                setData(barData)
             }
-
-            val ma120 = LineDataSet(calculateMA(data, 120), "MA120").apply {
-                color = Magenta.toArgb()
-                lineWidth = 1.5f
-                setDrawCircles(false)
-                setDrawValues(false)
-            }
-
-            val lineData = LineData(ma5, ma20, ma60, ma120)
-
-            // --- Candle + MA 합치기 ---
-            val combinedData = CombinedData()
-            combinedData.setData(candleData)
-            combinedData.setData(lineData)
 
             chart.data = combinedData
 
@@ -300,30 +248,42 @@ fun ChartTabContent(data: List<ChartData>) {
                 // X축
                 xAxis.apply {
                     position = XAxis.XAxisPosition.BOTTOM
-                    granularity = 1f // 1일 단위
+                    granularity = 1f
                     setDrawGridLines(false)
                     valueFormatter = ChartDateFormatter(data)
                 }
 
-                // 초기 확대 상태
-                setVisibleXRangeMaximum(45f) // X축에 한 번에 보일 최대 개수
-                moveViewToX(data.size - 45f) // 마지막 데이터 쪽으로 이동
-
-                axisLeft.isEnabled = false
+                // 좌측 Y축 = 거래량
+                chart.axisLeft.apply {
+                    isEnabled = true
+                    valueFormatter = object : ValueFormatter() {
+                        override fun getFormattedValue(value: Float): String {
+                            return when {
+                                value >= 1_000_000 -> String.format("%.1fM", value / 1_000_000)
+                                value >= 1_000 -> String.format("%.1fK", value / 1_000)
+                                else -> value.toInt().toString()
+                            }
+                        }
+                    }
+                }
                 axisRight.isEnabled = true
 
                 description.isEnabled = false
                 legend.isEnabled = true
                 legend.isWordWrapEnabled = true
 
-                // 확대/축소, 드래그 활성화
-                setPinchZoom(true)        // 핀치로 X/Y 동시에 확대
-                isDragEnabled = true      // 드래그 가능
-                setScaleEnabled(true)     // 확대/축소 가능
+                // 확대/축소, 드래그
+                setPinchZoom(true)
+                isDragEnabled = true
+                setScaleEnabled(true)
                 setDrawGridBackground(false)
-                isDoubleTapToZoomEnabled = true // 더블탭 확대
-                isDragDecelerationEnabled = true // 드래그 후 관성 스크롤
+                isDoubleTapToZoomEnabled = true
+                isDragDecelerationEnabled = true
                 dragDecelerationFrictionCoef = 0.9f
+
+                // 초기 화면
+                setVisibleXRangeMaximum(45f)
+                moveViewToX(data.size - 45f)
             }
 
             chart.invalidate()
