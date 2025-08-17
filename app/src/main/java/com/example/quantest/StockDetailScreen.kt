@@ -31,16 +31,26 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.viewinterop.AndroidView
-import com.github.mikephil.charting.charts.CandleStickChart
+import com.github.mikephil.charting.charts.CombinedChart
 import com.github.mikephil.charting.data.CandleData
 import com.github.mikephil.charting.data.CandleDataSet
 import com.github.mikephil.charting.data.CandleEntry
 import android.graphics.Color as AndroidColor
 import android.graphics.Paint
 import com.github.mikephil.charting.components.XAxis
+import com.github.mikephil.charting.data.CombinedData
+import com.github.mikephil.charting.data.LineData
+import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.formatter.ValueFormatter
+import com.github.mikephil.charting.data.Entry
 import java.text.SimpleDateFormat
 import java.util.*
+import androidx.compose.ui.graphics.toArgb
+import com.example.quantest.ui.theme.Green
+import com.example.quantest.ui.theme.Red
+import com.example.quantest.ui.theme.Blue
+import com.example.quantest.ui.theme.Orange
+import com.example.quantest.ui.theme.Magenta
 
 @Preview(showBackground = true)
 @Composable
@@ -206,31 +216,86 @@ class ChartDateFormatter(
     }
 }
 
+// 이동평균 계산 함수
+fun calculateMA(data: List<ChartData>, period: Int): List<Entry> {
+    val result = mutableListOf<Entry>()
+    for (i in period - 1 until data.size) {
+        var sum = 0f
+        for (j in 0 until period) {
+            sum += data[i - j].chartClose.toFloat()
+        }
+        val avg = sum / period
+        result.add(Entry(i.toFloat(), avg))
+    }
+    return result
+}
+
 // 차트 탭
 @Composable
 fun ChartTabContent(data: List<ChartData>) {
 
     if (data.isEmpty()) return
 
-    val entries = chartDataToEntries(data)
+    val candleEntries = chartDataToEntries(data)
 
     AndroidView(
         factory = { context ->
             val view = LayoutInflater.from(context).inflate(R.layout.candle_chart, null) as FrameLayout
-            val chart = view.findViewById<CandleStickChart>(R.id.candleChart)
-            val dataSet = CandleDataSet(entries, "일봉").apply {
+            val chart = view.findViewById<CombinedChart>(R.id.candleChart)
+
+            // --- 캔들 데이터셋 ---
+            val candleDataSet = CandleDataSet(candleEntries, "일봉").apply {
                 color = AndroidColor.GRAY
                 shadowColor = AndroidColor.DKGRAY
                 shadowWidth = 0.7f
-                decreasingColor = AndroidColor.RED
+                decreasingColor = Blue.toArgb()
                 decreasingPaintStyle = Paint.Style.FILL
-                increasingColor = AndroidColor.BLUE
+                increasingColor = Red.toArgb()
                 increasingPaintStyle = Paint.Style.FILL
                 neutralColor = AndroidColor.BLUE
                 setDrawValues(false)
             }
-            chart.data = CandleData(dataSet)
+            val candleData = CandleData(candleDataSet)
 
+            // --- 이동평균 데이터셋들 ---
+            val ma5 = LineDataSet(calculateMA(data, 5), "MA5").apply {
+                color = Green.toArgb()
+                lineWidth = 1.5f
+                setDrawCircles(false)
+                setDrawValues(false)
+            }
+
+            val ma20 = LineDataSet(calculateMA(data, 20), "MA20").apply {
+                color = Red.toArgb()
+                lineWidth = 1.5f
+                setDrawCircles(false)
+                setDrawValues(false)
+            }
+
+            val ma60 = LineDataSet(calculateMA(data, 60), "MA60").apply {
+                color = Orange.toArgb()
+                lineWidth = 1.5f
+                setDrawCircles(false)
+                setDrawValues(false)
+            }
+
+            val ma120 = LineDataSet(calculateMA(data, 120), "MA120").apply {
+                color = Magenta.toArgb()
+                lineWidth = 1.5f
+                setDrawCircles(false)
+                setDrawValues(false)
+            }
+
+            val lineData = LineData(ma5, ma20, ma60, ma120)
+
+            // --- Candle + MA 합치기 ---
+            val combinedData = CombinedData()
+            combinedData.setData(candleData)
+            combinedData.setData(lineData)
+
+            chart.data = combinedData
+
+            // --- 차트 속성 ---
             chart.apply {
                 // X축
                 xAxis.apply {
@@ -241,36 +306,32 @@ fun ChartTabContent(data: List<ChartData>) {
                 }
 
                 // 초기 확대 상태
-                setVisibleXRangeMaximum(60f) // X축에 한 번에 보일 최대 개수
-                moveViewToX(data.size - 60f) // 마지막 데이터 쪽으로 이동
+                setVisibleXRangeMaximum(45f) // X축에 한 번에 보일 최대 개수
+                moveViewToX(data.size - 45f) // 마지막 데이터 쪽으로 이동
 
                 axisLeft.isEnabled = false
                 axisRight.isEnabled = true
 
                 description.isEnabled = false
-                legend.isEnabled = false
+                legend.isEnabled = true
+                legend.isWordWrapEnabled = true
 
                 // 확대/축소, 드래그 활성화
                 setPinchZoom(true)        // 핀치로 X/Y 동시에 확대
                 isDragEnabled = true      // 드래그 가능
                 setScaleEnabled(true)     // 확대/축소 가능
                 setDrawGridBackground(false)
-
-                // 더블탭 확대
-                isDoubleTapToZoomEnabled = true
-
-                // 드래그 후 관성 스크롤
-                isDragDecelerationEnabled = true
+                isDoubleTapToZoomEnabled = true // 더블탭 확대
+                isDragDecelerationEnabled = true // 드래그 후 관성 스크롤
                 dragDecelerationFrictionCoef = 0.9f
             }
 
             chart.invalidate()
             view
-
         },
         modifier = Modifier
             .fillMaxWidth()
-            .height(300.dp)
+            .height(360.dp)
     )
 }
 
