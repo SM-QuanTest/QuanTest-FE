@@ -97,18 +97,6 @@ fun RowScope.AddItem(
 ) {
     val selected = currentDestination?.hierarchy?.any { it.route == item.route } == true
 
-    val iconColor = if (selected) {
-        MaterialTheme.colorScheme.primary
-    } else {
-        MaterialTheme.colorScheme.onSurfaceVariant
-    }
-
-    val textColor = if (selected) {
-        MaterialTheme.colorScheme.primary
-    } else {
-        MaterialTheme.colorScheme.onSurfaceVariant
-    }
-
     val interactionSource = remember { MutableInteractionSource() }
 
     NavigationBarItem(
@@ -124,17 +112,22 @@ fun RowScope.AddItem(
                 painter = painterResource(id = item.icon),
                 contentDescription = item.route,
                 modifier = Modifier.size(24.dp),
-                tint = iconColor
             )
         },
         label = {
             Text(
                 text = stringResource(id = item.label),
                 fontSize = 12.sp,
-                color = textColor
             )
         },
         alwaysShowLabel = true,
-        interactionSource = interactionSource
+        interactionSource = interactionSource,
+        colors = NavigationBarItemDefaults.colors(
+            selectedIconColor = MaterialTheme.colorScheme.primary,
+            selectedTextColor = MaterialTheme.colorScheme.primary,
+            unselectedIconColor = MaterialTheme.colorScheme.onPrimaryContainer,
+            unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            indicatorColor = Color.Transparent
+        )
     )
 }
