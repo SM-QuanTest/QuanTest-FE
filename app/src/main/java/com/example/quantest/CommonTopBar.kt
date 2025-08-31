@@ -1,6 +1,5 @@
 package com.example.quantest
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.IconButton
@@ -12,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import androidx.compose.material3.Icon
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -23,12 +23,12 @@ fun CommonTopBar(onSearchClick: () -> Unit) {
         ),
         title = {},
         actions = {
-            IconButton(
-                onClick = { onSearchClick() }) {
-                Image(
+            IconButton(onClick = { onSearchClick() }) {
+                Icon(
                     painter = painterResource(id = R.drawable.ic_search),
                     contentDescription = "검색",
-                    modifier = Modifier.size(24.dp)
+                    modifier = Modifier.size(24.dp),
+                    tint = MaterialTheme.colorScheme.onPrimaryContainer // 원하는 색
                 )
             }
         }

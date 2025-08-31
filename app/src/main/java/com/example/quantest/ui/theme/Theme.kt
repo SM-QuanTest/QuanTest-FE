@@ -24,6 +24,7 @@ private val DarkColorScheme = darkColorScheme(
 private val LightColorScheme = lightColorScheme(
     primary = StormGray80,  // 선택 텍스트/아이콘
     primaryContainer = White,   // 상단바/하단바 배경색
+    onPrimaryContainer = StormGray20,
     secondary = PurpleGrey40,
     tertiary = Pink40,
     background = White,
