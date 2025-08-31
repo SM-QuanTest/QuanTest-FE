@@ -10,17 +10,25 @@ import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.graphics.Color
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
+    primary = White,
+    primaryContainer = Black,
     secondary = PurpleGrey80,
-    tertiary = Pink80
+    tertiary = Pink80,
+    background = Black,
+    surface = Black
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
+    primary = StormGray80,  // 선택 텍스트/아이콘
+    primaryContainer = White,   // 상단바/하단바 배경색
     secondary = PurpleGrey40,
-    tertiary = Pink40
+    tertiary = Pink40,
+    background = White,
+    surface = White,
+    onSurfaceVariant = StormGray40  // 비선택 텍스트/아이콘
 
     /* Other default colors to override
     background = Color(0xFFFFFBFE),
@@ -37,7 +45,7 @@ private val LightColorScheme = lightColorScheme(
 fun QuanTestTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
+    dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {
