@@ -22,6 +22,7 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.quantest.ui.theme.StormGray10
 
 @Composable
 fun MainScreen() {
@@ -68,8 +69,8 @@ fun BottomBar(navController: NavHostController) {
             .clip(RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp))
             .background(Color.Transparent)
             .border(
-                width = 0.3.dp,
-                color = MaterialTheme.colorScheme.tertiaryContainer,
+                width = 0.4.dp,
+                color = StormGray10,
                 shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)
             )
     ) {
