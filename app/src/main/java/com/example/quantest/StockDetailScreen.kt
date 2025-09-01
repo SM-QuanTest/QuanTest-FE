@@ -132,7 +132,7 @@ fun StockDetailScreen(
 
             Text(
                 text = changeText,
-                fontSize = 14.sp,
+                fontSize = 16.sp,
                 color = if (isRise) Red else Blue
             )
         }
