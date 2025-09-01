@@ -49,9 +49,16 @@ import com.example.quantest.ui.theme.Red
 import com.example.quantest.ui.theme.Blue
 import com.example.quantest.ui.theme.Orange
 import com.example.quantest.ui.theme.Magenta
+import com.example.quantest.ui.theme.StormGray40
 import com.github.mikephil.charting.components.YAxis
 import com.github.mikephil.charting.data.BarData
 import com.github.mikephil.charting.data.BarDataSet
+import androidx.compose.ui.Alignment
+import com.example.quantest.ui.theme.Navy
+import com.example.quantest.ui.theme.StormGray10
+import com.example.quantest.ui.theme.StormGray80
+import androidx.compose.ui.text.TextStyle
+import com.example.quantest.ui.theme.StormGray20
 
 @Preview(showBackground = true)
 @Composable
@@ -110,7 +117,7 @@ fun StockDetailScreen(
             Text(
                 text = latest?.chartClose?.let { formatPrice(it) } ?: "-원",
                 fontWeight = FontWeight.ExtraBold,
-                fontSize = 28.sp
+                fontSize = 30.sp
             )
 
             val priceChange = latest?.priceChange ?: 0
@@ -126,7 +133,7 @@ fun StockDetailScreen(
             Text(
                 text = changeText,
                 fontSize = 14.sp,
-                color = if (isRise) Color.Red else Color.Blue
+                color = if (isRise) Red else Blue
             )
         }
 
@@ -138,7 +145,11 @@ fun StockDetailScreen(
                 Tab(
                     selected = selectedTab == index,
                     onClick = { selectedTab = index },
-                    text = { Text(label) }
+                    text = {
+                        Text(
+                            text = label
+                            )
+                    }
                 )
             }
         }
@@ -150,22 +161,42 @@ fun StockDetailScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
+        HorizontalDivider(
+            color = StormGray10,
+            thickness = 1.dp,
+            modifier = Modifier.fillMaxWidth()
+        )
+
         // 일별 시세 보기
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .clickable { onDetailClick() }
                 .padding(16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
+            horizontalArrangement = Arrangement.Center,           // 🔴 중앙 정렬
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(text = "일별 시세 보기", fontWeight = FontWeight.Medium)
-            Icon(
-                painter = painterResource(id = R.drawable.ic_arrow_next),
-                contentDescription = "더보기",
-                tint = Color.Gray,
-                modifier = Modifier.size(16.dp)
-            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = "일별 시세 보기",
+                    fontWeight = FontWeight.Medium,
+                    color = StormGray40
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_arrow_next),
+                    contentDescription = "더보기",
+                    tint = StormGray40,
+                    modifier = Modifier.size(16.dp)
+                )
+            }
         }
+
+        HorizontalDivider(
+            color = StormGray10,
+            thickness = 12.dp,
+            modifier = Modifier.fillMaxWidth()
+        )
 
         Spacer(modifier = Modifier.weight(1f))
 
@@ -174,10 +205,17 @@ fun StockDetailScreen(
             onClick = onBuyClick,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
-            shape = RoundedCornerShape(16.dp)
+                .padding(20.dp),
+            shape = RoundedCornerShape(12.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Navy,
+                contentColor = Color.White
+            )
         ) {
-            Text("구매하기")
+            Text(
+                text = "구매하기",
+                fontSize = 18.sp
+            )
         }
     }
 }
@@ -301,8 +339,24 @@ fun InfoTabContent(viewModel: StockDetailViewModel) {
     val data = viewModel.latestChartData
 
     Column(modifier = Modifier.padding(16.dp)) {
-        Text(text = "시세", fontWeight = FontWeight.Bold)
-        Text(text = "${data?.chartDate ?: ""} 기준", color = Color.Gray, fontSize = 12.sp)
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "시세",
+                fontWeight = FontWeight.Bold,
+                fontSize = 18.sp
+            )
+            Text(
+                text = "${formatChartDate(data?.chartDate)} 기준",
+                fontSize = 14.sp,
+                color = StormGray40
+            )
+        }
 
         Spacer(modifier = Modifier.height(8.dp))
 
@@ -319,22 +373,59 @@ fun InfoTabContent(viewModel: StockDetailViewModel) {
         Spacer(modifier = Modifier.height(12.dp))
 
         // 시가, 종가, 거래량, 거래대금
-        Column {
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Text("시가", fontWeight = FontWeight.SemiBold)
-                Text(formatPrice(data?.chartOpen))
+        val labelTextStyle = TextStyle(
+            fontWeight = FontWeight.SemiBold,
+            fontSize = 16.sp,
+            color = StormGray40
+        )
+
+        val valueTextStyle = TextStyle(
+            fontSize = 16.sp,
+            color = StormGray80
+        )
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(IntrinsicSize.Min),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // 왼쪽 컬럼 (시가/종가)
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                    Text("시가", style = labelTextStyle)
+                    Text(formatPrice(data?.chartOpen), style = valueTextStyle)
+                }
+                Spacer(Modifier.height(12.dp))
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                    Text("종가", style = labelTextStyle)
+                    Text(formatPrice(data?.chartClose), style = valueTextStyle)
+                }
             }
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Text("종가", fontWeight = FontWeight.SemiBold)
-                Text(formatPrice(data?.chartClose))
-            }
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Text("거래량", fontWeight = FontWeight.SemiBold)
-                Text(formatVolume(data?.chartVolume))
-            }
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Text("거래대금", fontWeight = FontWeight.SemiBold)
-                Text(formatPrice(data?.chartTurnover))
+
+            VerticalDivider(
+                color = StormGray10,
+                modifier = Modifier
+                    .padding(horizontal = 16.dp)
+                    .fillMaxHeight()
+                    .width(1.dp)
+            )
+
+            // 오른쪽 컬럼 (거래량/거래대금)
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                    Text("거래량", style = labelTextStyle)
+                    Text(formatVolume(data?.chartVolume), style = valueTextStyle)
+                }
+                Spacer(Modifier.height(12.dp))
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                    Text("거래대금", style = labelTextStyle)
+                    Text(formatAmountToEokWon(data?.chartTurnover), style = valueTextStyle)
+                }
             }
         }
     }
