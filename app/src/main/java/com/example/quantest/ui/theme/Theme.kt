@@ -23,12 +23,13 @@ private val DarkColorScheme = darkColorScheme(
 
 private val LightColorScheme = lightColorScheme(
     primary = StormGray80,  // 선택 텍스트/아이콘
-    primaryContainer = White,   // 상단바/하단바 배경색
+    primaryContainer = White,   // 상단바/하단바 배경
     onPrimaryContainer = StormGray20,
     secondary = PurpleGrey40,
     tertiary = Pink40,
     background = White,
     surface = White,
+    onSurface = StormGray80, // 텍스트
     onSurfaceVariant = StormGray40  // 비선택 텍스트/아이콘
 
     /* Other default colors to override

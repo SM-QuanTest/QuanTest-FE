@@ -1,28 +1,26 @@
 package com.example.quantest
 
 import android.util.Log
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
+import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import coil.compose.AsyncImage
 import com.example.quantest.model.ChangeDirection
 import com.example.quantest.model.StockItem
 import com.example.quantest.ui.theme.Blue
 import com.example.quantest.ui.theme.Navy
 import com.example.quantest.ui.theme.Red
+import androidx.compose.ui.graphics.Color
 
 @Composable
 fun HomeScreen(
@@ -30,7 +28,7 @@ fun HomeScreen(
     onSearchClick: () -> Unit,
     onStockClick: (Int) -> Unit
 ) {
-    var selectedIndex by remember { mutableStateOf(0) }
+    var selectedIndex by rememberSaveable { mutableStateOf(0) }
 
     val categoryMap = listOf("TURNOVER", "VOLUME", "RISE", "FALL")
     val selectedCategory = categoryMap.getOrNull(selectedIndex) ?: "TURNOVER"
@@ -76,37 +74,15 @@ fun FilterTabs(
     selectedIndex: Int,
     onTabSelected: (Int) -> Unit
 ) {
-    val filters = listOf("거래대금", "거래량", "상승", "하락")
+    val tabs = listOf("거래대금", "거래량", "상승", "하락")
 
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp),
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        filters.forEachIndexed { index, label ->
-            val isSelected = index == selectedIndex
-            val color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
-
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .clickable { onTabSelected(index) }, // 클릭 시 외부 상태 업데이트
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    text = label,
-                    fontWeight = FontWeight.Bold,
-                    color = color,
-                    modifier = Modifier.padding(vertical = 8.dp)
-                )
-                Box(
-                    modifier = Modifier
-                        .height(if (isSelected) 2.dp else 1.dp)
-                        .fillMaxWidth()
-                        .background(color = color, shape = RoundedCornerShape(50))
-                )
-            }
+    TabRow(selectedTabIndex = selectedIndex) {
+        tabs.forEachIndexed { index, label ->
+            Tab(
+                selected = selectedIndex == index,
+                onClick = { onTabSelected(index) },
+                text = { Text(text = label) }
+            )
         }
     }
 }

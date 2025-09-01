@@ -18,8 +18,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.quantest.ui.theme.StormGray10
+import com.example.quantest.ui.theme.StormGray20
+import com.example.quantest.ui.theme.StormGray40
 
 @Composable
 fun PatternScreen(
@@ -58,7 +62,7 @@ fun PatternScreen(
                 }
             }
 
-            // 패턴 카드 리스트 (2열 그리드)
+            // 패턴 카드 리스트 (3열 그리드)
             LazyVerticalGrid(
                 columns = GridCells.Fixed(2),
                 modifier = Modifier.fillMaxSize(),
@@ -89,26 +93,38 @@ fun PatternCard(
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onClick() }
-            .padding(horizontal = 12.dp)
+            .padding(horizontal = 16.dp, vertical = 8.dp)
     ) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(120.dp)
+                .aspectRatio(1f)
                 .padding(bottom = 8.dp)
                 .clip(RoundedCornerShape(12.dp))
-                .background(Color.LightGray)
-        )
+                .background(StormGray10)
+        ) {
+            // TODO: 실제 패턴 이미지
+            Image(
+                painter = painterResource(id = R.drawable.ic_placeholder),
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize()
+            )
+        }
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(text = patternName, fontSize = 14.sp)
-            Image(
+            Text(
+                text = patternName,
+                fontSize = 15.sp,
+                fontWeight = FontWeight.SemiBold)
+            Icon(
                 painter = painterResource(id = R.drawable.ic_arrow_next),
                 contentDescription = "next",
-                modifier = Modifier.size(14.dp)
+                modifier = Modifier.size(16.dp),
+                tint = StormGray40
             )
         }
     }

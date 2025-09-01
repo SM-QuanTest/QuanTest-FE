@@ -74,3 +74,24 @@ class VolumeValueFormatter : ValueFormatter() {
         }
     }
 }
+
+// 거래대금 포맷터
+fun formatAmountToEokWon(amount: Long?): String {
+    if (amount == null) return "-"
+    val eok = amount / 100_000_000        // 1억 단위
+    return "%,d억원".format(eok)
+}
+
+
+fun formatChartDate(dateStr: String?): String {
+    if (dateStr.isNullOrBlank()) return ""
+    return try {
+        val parser = SimpleDateFormat("yyyy-MM-dd", Locale.KOREA)
+        val date = parser.parse(dateStr)
+
+        val formatter = SimpleDateFormat("M월 d일", Locale.KOREA)
+        formatter.format(date!!)
+    } catch (e: Exception) {
+        "" // 포맷 실패 시 빈 문자열
+    }
+}
