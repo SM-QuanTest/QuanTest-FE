@@ -132,7 +132,7 @@ fun StockDetailScreen(
 
             Text(
                 text = changeText,
-                fontSize = 14.sp,
+                fontSize = 16.sp,
                 color = if (isRise) Red else Blue
             )
         }
@@ -258,10 +258,9 @@ fun ChartTabContent(data: List<ChartData>) {
             }
 
             val lineData = LineData(
-                createMASet(calculateMA(data, 5), "MA5", Green.toArgb()),
-                createMASet(calculateMA(data, 20), "MA20", Red.toArgb()),
-                createMASet(calculateMA(data, 60), "MA60", Orange.toArgb()),
-                createMASet(calculateMA(data, 120), "MA120", Magenta.toArgb())
+                createMASet(calculateMA(data, 5), "5", Green.toArgb()),
+                createMASet(calculateMA(data, 20), "20", Magenta.toArgb()),
+                createMASet(calculateMA(data, 60), "160", Orange.toArgb())
             )
 
             // --- 거래량 ---
