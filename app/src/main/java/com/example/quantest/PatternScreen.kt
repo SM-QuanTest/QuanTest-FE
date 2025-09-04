@@ -1,7 +1,6 @@
 package com.example.quantest
 
 import android.util.Log
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -17,13 +16,17 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.example.quantest.ui.theme.StormGray10
-import com.example.quantest.ui.theme.StormGray20
 import com.example.quantest.ui.theme.StormGray40
+import com.github.mikephil.charting.BuildConfig
+import okhttp3.HttpUrl
+import okhttp3.HttpUrl.Companion.toHttpUrl
 
 @Composable
 fun PatternScreen(
@@ -72,7 +75,7 @@ fun PatternScreen(
             ) {
                 items(filteredPatterns) { pattern ->
                     PatternCard(
-                        patternName = pattern.patternName,
+                        pattern = pattern,
                         onClick = {
                             Log.d("PatternScreen", "Clicked patternId: ${pattern.patternId}")
                             onPatternClick(pattern.patternId)
@@ -84,15 +87,24 @@ fun PatternScreen(
     }
 }
 
+
+private val IMAGE_BASE_URL: HttpUrl = RetrofitClient.BASE_URL.toHttpUrl()
+
+fun String.toAbsoluteImageUrl(base: HttpUrl = IMAGE_BASE_URL): String {
+    if (startsWith("http://", true) || startsWith("https://", true)) return this
+    return base.resolve(this)?.toString()
+        ?: (base.toString().trimEnd('/') + "/" + trimStart('/'))
+}
+
 @Composable
 fun PatternCard(
-    patternName: String,
+    pattern: Pattern,
     onClick: () -> Unit
 ) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onClick() }
+            .clickable(onClick = onClick)
             .padding(horizontal = 16.dp, vertical = 8.dp)
     ) {
         Box(
@@ -103,11 +115,32 @@ fun PatternCard(
                 .clip(RoundedCornerShape(12.dp))
                 .background(StormGray10)
         ) {
-            // TODO: 실제 패턴 이미지
-            Image(
-                painter = painterResource(id = R.drawable.ic_placeholder),
-                contentDescription = null,
+            AsyncImage(
+                model = ImageRequest.Builder(LocalContext.current)
+                    .data(pattern.patternImageUrl.toAbsoluteImageUrl())
+                    .crossfade(true)
+                    .listener(
+                        onStart = { req ->
+                            Log.d("PatternCard", "▶️ load start url=${req.data}")
+                        },
+                        onError = { req, result ->
+                            Log.e(
+                                "PatternCard",
+                                "❌ load error url=${req.data}, throwable=${result.throwable}"
+                            )
+                        },
+                        onSuccess = { req, result ->
+                            Log.d(
+                                "PatternCard",
+                                "✅ load success url=${req.data}, source=${result.dataSource}"
+                            )
+                        }
+                    )
+                    .build(),
+                contentDescription = pattern.patternName,
                 contentScale = ContentScale.Crop,
+                placeholder = painterResource(R.drawable.ic_placeholder),
+                error = painterResource(R.drawable.ic_placeholder),
                 modifier = Modifier.fillMaxSize()
             )
         }
@@ -117,9 +150,10 @@ fun PatternCard(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = patternName,
+                text = pattern.patternName,
                 fontSize = 15.sp,
-                fontWeight = FontWeight.SemiBold)
+                fontWeight = FontWeight.SemiBold
+            )
             Icon(
                 painter = painterResource(id = R.drawable.ic_arrow_next),
                 contentDescription = "next",

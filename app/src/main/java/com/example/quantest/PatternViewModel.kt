@@ -41,7 +41,8 @@ class PatternViewModel : ViewModel() {
                             Pattern(
                                 patternId = it.patternId,
                                 patternName = it.patternName,
-                                patternDirection = it.patternDirection
+                                patternDirection = it.patternDirection,
+                                patternImageUrl = it.patternImageUrl
                             )
                         }
                         _patterns.value = patternList

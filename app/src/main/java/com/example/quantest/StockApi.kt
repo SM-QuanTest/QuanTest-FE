@@ -25,7 +25,7 @@ interface StockApi {
     @GET("/charts/{stockId}/latest")
     suspend fun getLatestChartData(@Path("stockId") stockId: Int): Response<BaseResponse<LatestChartData>>
 
-    // 패턴 다건 조회(상승/하락)
+    // 패턴 다건 조회(상승/하락) (+패턴 이미지 url 추가)
     @GET("/patterns")
     suspend fun getPatterns(
         @Query("type") type: String? = null // "BULLISH" or "BEARISH"
