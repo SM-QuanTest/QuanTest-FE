@@ -1,5 +1,11 @@
-package com.example.quantest
+package com.example.quantest.data.api
 
+import com.example.quantest.data.model.BaseResponse
+import com.example.quantest.data.model.ChartData
+import com.example.quantest.data.model.LatestChartData
+import com.example.quantest.data.model.Pattern
+import com.example.quantest.data.model.PatternStockItem
+import com.example.quantest.data.model.StockRankingData
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Path

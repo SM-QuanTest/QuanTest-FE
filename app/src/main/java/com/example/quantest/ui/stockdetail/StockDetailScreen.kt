@@ -1,4 +1,4 @@
-package com.example.quantest
+package com.example.quantest.ui.stockdetail
 
 import android.util.Log
 import android.view.LayoutInflater
@@ -58,7 +58,17 @@ import com.example.quantest.ui.theme.Navy
 import com.example.quantest.ui.theme.StormGray10
 import com.example.quantest.ui.theme.StormGray80
 import androidx.compose.ui.text.TextStyle
-import com.example.quantest.ui.theme.StormGray20
+import com.example.quantest.data.model.ChartData
+import com.example.quantest.R
+import com.example.quantest.util.formatPrice
+import com.example.quantest.util.formatVolume
+import com.example.quantest.util.ChartDateFormatter
+import com.example.quantest.util.calculateMA
+import com.example.quantest.util.chartDataToEntries
+import com.example.quantest.util.chartDataToVolumeEntries
+import com.example.quantest.util.formatAmountToEokWon
+import com.example.quantest.util.formatChartDate
+import kotlin.math.abs
 
 @Preview(showBackground = true)
 @Composable
@@ -125,7 +135,7 @@ fun StockDetailScreen(
             val isRise = priceChange >= 0
             val changeText = if (latest != null) {
                 val sign = if (isRise) "+" else "-"
-                "$sign${formatPrice(kotlin.math.abs(priceChange))} (${String.format("%.2f", kotlin.math.abs(changePercent))}%)"
+                "$sign${formatPrice(abs(priceChange))} (${String.format("%.2f", abs(changePercent))}%)"
             } else {
                 ""
             }

@@ -1,11 +1,11 @@
-package com.example.quantest
+package com.example.quantest.data.model
 
 data class StockRankingData(
     val categoryName: String,
-    val stocks: List<StockRankingDto>
+    val stocks: List<StockRanking>
 )
 
-data class StockRankingDto(
+data class StockRanking(
     val stockId: Long,
     val stockName: String,
     val chartChangePercentage: Double,

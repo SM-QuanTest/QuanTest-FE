@@ -1,4 +1,4 @@
-package com.example.quantest
+package com.example.quantest.data.model
 
 data class ChartData(
     val chartId: Long,

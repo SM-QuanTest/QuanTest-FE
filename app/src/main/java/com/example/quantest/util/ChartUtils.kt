@@ -1,5 +1,6 @@
-package com.example.quantest
+package com.example.quantest.util
 
+import com.example.quantest.data.model.ChartData
 import com.github.mikephil.charting.data.BarEntry
 import com.github.mikephil.charting.data.CandleEntry
 import com.github.mikephil.charting.data.Entry

@@ -1,11 +1,6 @@
-package com.example.quantest
+package com.example.quantest.ui.component
 
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Build
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.ShoppingCart
-import androidx.compose.ui.graphics.vector.ImageVector
+import com.example.quantest.R
 
 sealed class BottomNavItem(
     val route: String,

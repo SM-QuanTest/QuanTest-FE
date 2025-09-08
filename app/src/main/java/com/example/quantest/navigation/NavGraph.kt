@@ -1,4 +1,4 @@
-package com.example.quantest
+package com.example.quantest.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
@@ -6,6 +6,14 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.example.quantest.ui.component.BottomNavItem
+import com.example.quantest.ui.filter.FilterScreen
+import com.example.quantest.ui.home.HomeScreen
+import com.example.quantest.ui.menu.MenuScreen
+import com.example.quantest.ui.pattern.PatternScreen
+import com.example.quantest.ui.search.SearchScreen
+import com.example.quantest.ui.stockdetail.StockDetailScreen
+import com.example.quantest.ui.stocklist.StockListScreen
 
 @Composable
 fun NavGraph(navController: NavHostController) {

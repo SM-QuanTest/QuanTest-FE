@@ -1,10 +1,11 @@
-package com.example.quantest
+package com.example.quantest.data.api
 
+import com.example.quantest.data.api.StockApi
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 object RetrofitClient {
-    const val BASE_URL = "https://abb478c560c0.ngrok-free.app/"
+    const val BASE_URL = "https://8b91e4d5fcdf.ngrok-free.app/"
 
     val stockApi: StockApi by lazy {
         Retrofit.Builder()
