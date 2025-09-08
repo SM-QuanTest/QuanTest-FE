@@ -5,6 +5,7 @@ import com.example.quantest.data.model.ChartData
 import com.example.quantest.data.model.LatestChartData
 import com.example.quantest.data.model.Pattern
 import com.example.quantest.data.model.PatternStockItem
+import com.example.quantest.data.model.SectorResponse
 import com.example.quantest.data.model.StockRankingData
 import retrofit2.Response
 import retrofit2.http.GET
@@ -42,4 +43,8 @@ interface StockApi {
     suspend fun getPatternStocks(
         @Path("patternId") patternId: Long
     ): Response<BaseResponse<List<PatternStockItem>>>
+
+    // 업종 다건 조회
+    @GET("/sectors")
+    suspend fun getSectors(): SectorResponse
 }

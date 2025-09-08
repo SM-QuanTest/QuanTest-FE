@@ -29,6 +29,7 @@ private val LightColorScheme = lightColorScheme(
     tertiary = Pink40,
     background = White,
     surface = White,
+    surfaceVariant = StormGray10,
     onSurface = StormGray80, // 텍스트
     onSurfaceVariant = StormGray40  // 비선택 텍스트/아이콘
 
