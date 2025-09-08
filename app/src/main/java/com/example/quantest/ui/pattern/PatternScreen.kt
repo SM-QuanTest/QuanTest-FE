@@ -10,6 +10,7 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -25,11 +26,17 @@ import coil.request.ImageRequest
 import com.example.quantest.data.model.Pattern
 import com.example.quantest.R
 import com.example.quantest.data.api.RetrofitClient
+import com.example.quantest.ui.component.QuanTestTabRow
 import com.example.quantest.ui.component.QuanTestTopBar
 import com.example.quantest.ui.theme.StormGray10
 import com.example.quantest.ui.theme.StormGray40
 import okhttp3.HttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrl
+
+enum class PatternTab(val title: String, val direction: String) {
+    BULLISH("상승형 패턴", "상승형"),
+    BEARISH("하락형 패턴", "하락형")
+}
 
 @Composable
 fun PatternScreen(
@@ -37,12 +44,11 @@ fun PatternScreen(
     onSearchClick: () -> Unit,
     onPatternClick: (Int) -> Unit
 ) {
-    val tabs = listOf("상승형 패턴", "하락형 패턴")
-    var selectedTabIndex by remember { mutableStateOf(0) }
+    var selectedTab by rememberSaveable { mutableStateOf(PatternTab.BULLISH) }
 
     val patternList by viewModel.patterns.collectAsState()
-    val filteredPatterns = patternList.filter {
-        if (selectedTabIndex == 0) it.patternDirection == "상승형" else it.patternDirection == "하락형"
+    val filteredPatterns by remember(patternList, selectedTab) {
+        derivedStateOf { patternList.filter { it.patternDirection == selectedTab.direction } }
     }
 
     Scaffold(
@@ -53,20 +59,12 @@ fun PatternScreen(
             .fillMaxSize()) {
 
             // 상단 탭
-            TabRow(selectedTabIndex = selectedTabIndex) {
-                tabs.forEachIndexed { index, title ->
-                    Tab(
-                        selected = selectedTabIndex == index,
-                        onClick = { selectedTabIndex = index },
-                        text = {
-                            Text(
-                                text = title,
-                                fontWeight = if (selectedTabIndex == index) FontWeight.Bold else FontWeight.Normal
-                            )
-                        }
-                    )
-                }
-            }
+            QuanTestTabRow(
+                tabs = PatternTab.values(),
+                selected = selectedTab,
+                onSelected = { selectedTab = it },
+                titleProvider = { it.title }
+            )
 
             // 패턴 카드 리스트 (3열 그리드)
             LazyVerticalGrid(

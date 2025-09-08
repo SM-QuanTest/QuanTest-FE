@@ -21,7 +21,15 @@ import com.example.quantest.ui.theme.Navy
 import com.example.quantest.ui.theme.Red
 import com.example.quantest.ui.component.QuanTestTopBar
 import com.example.quantest.R
+import com.example.quantest.ui.component.QuanTestTabRow
 import com.example.quantest.util.formatPrice
+
+enum class HomeTab(val title: String, val category: String) {
+    TURNOVER("거래대금", "TURNOVER"),
+    VOLUME("거래량", "VOLUME"),
+    RISE("상승", "RISE"),
+    FALL("하락", "FALL")
+}
 
 @Composable
 fun HomeScreen(
@@ -29,13 +37,10 @@ fun HomeScreen(
     onSearchClick: () -> Unit,
     onStockClick: (Int) -> Unit
 ) {
-    var selectedIndex by rememberSaveable { mutableStateOf(0) }
+    var selectedTab by rememberSaveable { mutableStateOf(HomeTab.TURNOVER) }
 
-    val categoryMap = listOf("TURNOVER", "VOLUME", "RISE", "FALL")
-    val selectedCategory = remember(selectedIndex) { categoryMap.getOrNull(selectedIndex) ?: "TURNOVER" }
-
-    LaunchedEffect(selectedCategory) {
-        viewModel.loadStocks(selectedCategory)
+    LaunchedEffect(selectedTab) {
+        viewModel.loadStocks(selectedTab.category)
     }
 
     val stockItems = viewModel.stockItems
@@ -44,11 +49,16 @@ fun HomeScreen(
         topBar = { QuanTestTopBar(onSearchClick = onSearchClick) }
     ) { innerPadding ->
         Column(modifier = Modifier.padding(innerPadding)) {
+
             RankingTitle()
-            FilterTabs(
-                selectedIndex = selectedIndex,
-                onTabSelected = { selectedIndex = it }
+
+            QuanTestTabRow(
+                tabs = HomeTab.values(),
+                selected = selectedTab,
+                onSelected = { selectedTab = it },
+                titleProvider = { it.title }
             )
+
             RankingList(
                 items = stockItems,
                 onItemClick = { stockId ->
@@ -71,31 +81,16 @@ fun RankingTitle() {
 }
 
 @Composable
-fun FilterTabs(
-    selectedIndex: Int,
-    onTabSelected: (Int) -> Unit
-) {
-    val tabs = listOf("거래대금", "거래량", "상승", "하락")
-
-    TabRow(selectedTabIndex = selectedIndex) {
-        tabs.forEachIndexed { index, label ->
-            Tab(
-                selected = selectedIndex == index,
-                onClick = { onTabSelected(index) },
-                text = { Text(text = label) }
-            )
-        }
-    }
-}
-
-@Composable
 fun RankingList(items: List<StockItem>, onItemClick: (Int) -> Unit) {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
             .padding(top = 8.dp)
     ) {
-        items(items.size) { index ->
+        items(
+            count = items.size,
+            key = { index -> items[index].id }
+        ) { index ->
             val item = items[index]
             StockRankItem(item = item, onClick = { onItemClick(item.id) })
         }

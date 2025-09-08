@@ -1,5 +1,6 @@
 package com.example.quantest.ui.stockdetail
 
+import android.R.id.tabs
 import android.util.Log
 import android.view.LayoutInflater
 import android.widget.FrameLayout
@@ -36,6 +37,7 @@ import com.github.mikephil.charting.data.CandleData
 import com.github.mikephil.charting.data.CandleDataSet
 import android.graphics.Color as AndroidColor
 import android.graphics.Paint
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.graphics.Color.Companion.Gray
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.CombinedData
@@ -58,8 +60,10 @@ import com.example.quantest.ui.theme.Navy
 import com.example.quantest.ui.theme.StormGray10
 import com.example.quantest.ui.theme.StormGray80
 import androidx.compose.ui.text.TextStyle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.quantest.data.model.ChartData
 import com.example.quantest.R
+import com.example.quantest.ui.component.QuanTestTabRow
 import com.example.quantest.util.formatPrice
 import com.example.quantest.util.formatVolume
 import com.example.quantest.util.ChartDateFormatter
@@ -83,23 +87,26 @@ fun StockDetailScreenPreview() {
     }
 }
 
+enum class StockDetailTab(val title: String) {
+    CHART("차트"),
+    INFO("종목정보")
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StockDetailScreen(
+    viewModel: StockDetailViewModel = viewModel(),
     stockId: Int,
     onBackClick: () -> Unit,
     onDetailClick: () -> Unit,
     onBuyClick: () -> Unit
 ) {
-    val viewModel = remember { StockDetailViewModel() }
+    var selectedTab by rememberSaveable { mutableStateOf(StockDetailTab.CHART) }
+
     LaunchedEffect(stockId) {
         Log.d("StockDetailScreen", "Received stockId: $stockId")
         viewModel.fetchChartData(stockId)
     }
-
-
-    var selectedTab by remember { mutableStateOf(0) }
-    val tabs = listOf("차트", "종목정보")
 
     Column(modifier = Modifier.fillMaxSize()) {
         // 상단 바
@@ -116,57 +123,21 @@ fun StockDetailScreen(
         )
 
         // 종목 기본 정보
-        val latest = viewModel.latestChartData
-
-        Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-            Text(
-                text = latest?.stockName ?: "-",
-                fontWeight = FontWeight.Bold,
-                fontSize = 18.sp
-            )
-            Text(
-                text = latest?.chartClose?.let { formatPrice(it) } ?: "-원",
-                fontWeight = FontWeight.ExtraBold,
-                fontSize = 30.sp
-            )
-
-            val priceChange = latest?.priceChange ?: 0
-            val changePercent = latest?.chartChangePercent ?: 0.0
-            val isRise = priceChange >= 0
-            val changeText = if (latest != null) {
-                val sign = if (isRise) "+" else "-"
-                "$sign${formatPrice(abs(priceChange))} (${String.format("%.2f", abs(changePercent))}%)"
-            } else {
-                ""
-            }
-
-            Text(
-                text = changeText,
-                fontSize = 16.sp,
-                color = if (isRise) Red else Blue
-            )
-        }
+        StockBasicInfo(viewModel = viewModel)
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // 탭
-        TabRow(selectedTabIndex = selectedTab) {
-            tabs.forEachIndexed { index, label ->
-                Tab(
-                    selected = selectedTab == index,
-                    onClick = { selectedTab = index },
-                    text = {
-                        Text(
-                            text = label
-                            )
-                    }
-                )
-            }
-        }
+        // 상단 탭
+        QuanTestTabRow(
+            tabs = StockDetailTab.values(),
+            selected = selectedTab,
+            onSelected = { selectedTab = it },
+            titleProvider = { it.title }
+        )
 
         when (selectedTab) {
-            0 -> ChartTabContent(viewModel.chartData)
-            1 -> InfoTabContent(viewModel)
+            StockDetailTab.CHART -> ChartTabContent(viewModel.chartData)
+            StockDetailTab.INFO  -> InfoTabContent(viewModel)
         }
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -227,6 +198,39 @@ fun StockDetailScreen(
                 fontSize = 18.sp
             )
         }
+    }
+}
+
+// 종목 기본 정보
+@Composable
+fun StockBasicInfo(viewModel: StockDetailViewModel) {
+    val latest = viewModel.latestChartData
+
+    Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+        Text(
+            text = latest?.stockName ?: "-",
+            fontWeight = FontWeight.Bold,
+            fontSize = 18.sp
+        )
+        Text(
+            text = latest?.chartClose?.let { formatPrice(it) } ?: "-원",
+            fontWeight = FontWeight.ExtraBold,
+            fontSize = 30.sp
+        )
+
+        val priceChange = latest?.priceChange ?: 0
+        val changePercent = latest?.chartChangePercent ?: 0.0
+        val isRise = priceChange >= 0
+        val changeText = if (latest != null) {
+            val sign = if (isRise) "+" else "-"
+            "$sign${formatPrice(abs(priceChange))} (${String.format("%.2f", abs(changePercent))}%)"
+        } else ""
+
+        Text(
+            text = changeText,
+            fontSize = 16.sp,
+            color = if (isRise) Red else Blue
+        )
     }
 }
 
