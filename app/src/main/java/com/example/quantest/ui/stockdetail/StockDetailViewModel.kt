@@ -1,20 +1,24 @@
-package com.example.quantest
+package com.example.quantest.ui.stockdetail
 
 import android.util.Log
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.quantest.data.model.ChartData
+import com.example.quantest.data.model.LatestChartData
+import com.example.quantest.data.api.RetrofitClient
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
-import java.util.*
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
+import java.util.Calendar
+import java.util.Locale
 
 class StockDetailViewModel : ViewModel() {
 
-    var chartData by mutableStateOf<List<ChartData>>(emptyList())
-        private set
-    var latestChartData by mutableStateOf<LatestChartData?>(null)
+    private val _chartData = mutableStateOf<List<ChartData>>(emptyList())
+    val chartData: List<ChartData> get() = _chartData.value
+
+    private val _latestChartData = mutableStateOf<LatestChartData?>(null)
+    val latestChartData: LatestChartData? get() = _latestChartData.value
 
     fun fetchChartData(stockId: Int) {
         val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
@@ -34,7 +38,7 @@ class StockDetailViewModel : ViewModel() {
                 Log.d("ChartFetch", "response: ${response.code()}, body: ${response.body()}")
 
                 if (response.isSuccessful && response.body()?.success == true) {
-                    chartData = response.body()?.data ?: emptyList()
+                    _chartData.value = response.body()?.data ?: emptyList<ChartData>()
                     Log.d("ChartFetch", "Fetched ${chartData.size} items")
                 } else {
                     Log.w("ChartFetch", "API error: ${response.message()}")
@@ -53,7 +57,7 @@ class StockDetailViewModel : ViewModel() {
             try {
                 val response = RetrofitClient.stockApi.getLatestChartData(stockId)
                 if (response.isSuccessful) {
-                    latestChartData = response.body()?.data
+                    _latestChartData.value = response.body()?.data
                     Log.d("LatestChart", "불러온 데이터: $latestChartData")
                 } else {
                     Log.e("LatestChart", "실패: ${response.code()}")

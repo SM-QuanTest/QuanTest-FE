@@ -1,4 +1,4 @@
-package com.example.quantest
+package com.example.quantest.ui.pattern
 
 import android.util.Log
 import androidx.compose.foundation.background
@@ -22,9 +22,12 @@ import androidx.compose.ui.res.painterResource
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.example.quantest.data.model.Pattern
+import com.example.quantest.R
+import com.example.quantest.data.api.RetrofitClient
+import com.example.quantest.ui.component.CommonTopBar
 import com.example.quantest.ui.theme.StormGray10
 import com.example.quantest.ui.theme.StormGray40
-import com.github.mikephil.charting.BuildConfig
 import okhttp3.HttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrl
 

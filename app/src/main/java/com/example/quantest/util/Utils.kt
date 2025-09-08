@@ -1,4 +1,4 @@
-package com.example.quantest
+package com.example.quantest.util
 
 import java.text.NumberFormat
 import java.util.Locale

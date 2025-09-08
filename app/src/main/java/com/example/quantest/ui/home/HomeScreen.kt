@@ -1,11 +1,10 @@
-package com.example.quantest
+package com.example.quantest.ui.home
 
 import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.*
-import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
@@ -20,7 +19,9 @@ import com.example.quantest.model.StockItem
 import com.example.quantest.ui.theme.Blue
 import com.example.quantest.ui.theme.Navy
 import com.example.quantest.ui.theme.Red
-import androidx.compose.ui.graphics.Color
+import com.example.quantest.ui.component.CommonTopBar
+import com.example.quantest.R
+import com.example.quantest.util.formatPrice
 
 @Composable
 fun HomeScreen(
@@ -31,9 +32,9 @@ fun HomeScreen(
     var selectedIndex by rememberSaveable { mutableStateOf(0) }
 
     val categoryMap = listOf("TURNOVER", "VOLUME", "RISE", "FALL")
-    val selectedCategory = categoryMap.getOrNull(selectedIndex) ?: "TURNOVER"
+    val selectedCategory = remember(selectedIndex) { categoryMap.getOrNull(selectedIndex) ?: "TURNOVER" }
 
-    LaunchedEffect(selectedIndex) {
+    LaunchedEffect(selectedCategory) {
         viewModel.loadStocks(selectedCategory)
     }
 

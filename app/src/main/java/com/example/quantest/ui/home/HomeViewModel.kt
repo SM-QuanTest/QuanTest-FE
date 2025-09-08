@@ -1,11 +1,11 @@
-package com.example.quantest
+package com.example.quantest.ui.home
 
 import android.util.Log
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.quantest.data.api.RetrofitClient
+import com.example.quantest.data.model.StockRanking
 import com.example.quantest.model.ChangeDirection
 import com.example.quantest.model.StockItem
 import kotlinx.coroutines.launch
@@ -15,8 +15,8 @@ import java.util.Locale
 
 class HomeViewModel : ViewModel() {
 
-    var stockItems by mutableStateOf<List<StockItem>>(emptyList())
-        private set
+    private val _stockItems = mutableStateOf<List<StockItem>>(emptyList())
+    val stockItems: List<StockItem> get() = _stockItems.value
 
     // 오늘 날짜를 yyyy-MM-dd 형식으로 반환
     private fun getTodayFormatted(): String {
@@ -44,7 +44,7 @@ class HomeViewModel : ViewModel() {
                     response.body()?.data?.stocks?.let { rankingList ->
                         Log.d("HomeViewModel", "받은 종목 수: ${rankingList.size}")
 
-                        stockItems = rankingList.mapIndexed { index, dto ->
+                        _stockItems.value = rankingList.mapIndexed { index, dto ->
                             dto.toStockItem(index)
                         }
                     }
@@ -58,7 +58,7 @@ class HomeViewModel : ViewModel() {
         }
     }
 
-    private fun StockRankingDto.toStockItem(rank: Int): StockItem {
+    private fun StockRanking.toStockItem(rank: Int): StockItem {
         val direction = when (recordDirection?.lowercaseChar()) {
             'u' -> ChangeDirection.UP
             'd' -> ChangeDirection.DOWN

@@ -1,4 +1,4 @@
-package com.example.quantest
+package com.example.quantest.ui.search
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -15,6 +15,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.tooling.preview.Preview
+import com.example.quantest.R
 
 @Preview(showBackground = true)
 @Composable

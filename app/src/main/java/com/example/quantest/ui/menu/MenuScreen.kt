@@ -1,4 +1,4 @@
-package com.example.quantest
+package com.example.quantest.ui.menu
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
