@@ -19,7 +19,7 @@ import com.example.quantest.model.StockItem
 import com.example.quantest.ui.theme.Blue
 import com.example.quantest.ui.theme.Navy
 import com.example.quantest.ui.theme.Red
-import com.example.quantest.ui.component.CommonTopBar
+import com.example.quantest.ui.component.QuanTestTopBar
 import com.example.quantest.R
 import com.example.quantest.util.formatPrice
 
@@ -41,7 +41,7 @@ fun HomeScreen(
     val stockItems = viewModel.stockItems
 
     Scaffold(
-        topBar = { CommonTopBar(onSearchClick = onSearchClick) }
+        topBar = { QuanTestTopBar(onSearchClick = onSearchClick) }
     ) { innerPadding ->
         Column(modifier = Modifier.padding(innerPadding)) {
             RankingTitle()

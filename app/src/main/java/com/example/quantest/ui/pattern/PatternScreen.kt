@@ -25,7 +25,7 @@ import coil.request.ImageRequest
 import com.example.quantest.data.model.Pattern
 import com.example.quantest.R
 import com.example.quantest.data.api.RetrofitClient
-import com.example.quantest.ui.component.CommonTopBar
+import com.example.quantest.ui.component.QuanTestTopBar
 import com.example.quantest.ui.theme.StormGray10
 import com.example.quantest.ui.theme.StormGray40
 import okhttp3.HttpUrl
@@ -46,7 +46,7 @@ fun PatternScreen(
     }
 
     Scaffold(
-        topBar = { CommonTopBar(onSearchClick = onSearchClick) }
+        topBar = { QuanTestTopBar(onSearchClick = onSearchClick) }
     ) { innerPadding ->
         Column(modifier = Modifier
             .padding(innerPadding)

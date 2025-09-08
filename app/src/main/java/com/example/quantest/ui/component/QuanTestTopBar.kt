@@ -15,7 +15,7 @@ import com.example.quantest.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CommonTopBar(onSearchClick: () -> Unit) {
+fun QuanTestTopBar(onSearchClick: () -> Unit) {
     TopAppBar(
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = MaterialTheme.colorScheme.primaryContainer,

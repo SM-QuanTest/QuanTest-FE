@@ -8,12 +8,16 @@ import androidx.compose.material3.Text
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
-import com.example.quantest.ui.component.CommonTopBar
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.quantest.ui.component.QuanTestTopBar
 
 @Composable
-fun FilterScreen(onSearchClick: () -> Unit) {
+fun FilterScreen(
+    viewModel: FilterViewModel = viewModel(),
+    onSearchClick: () -> Unit
+) {
     Scaffold(
-        topBar = { CommonTopBar(onSearchClick = onSearchClick) }
+        topBar = { QuanTestTopBar(onSearchClick = onSearchClick) }
     ){ innerPadding ->
         Column(modifier = Modifier.padding(innerPadding)) {
             Text(
