@@ -1,3 +1,5 @@
+import org.gradle.kotlin.dsl.implementation
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -69,5 +71,8 @@ dependencies {
     implementation(libs.coil.compose)
 
     implementation(libs.mpandroidchart)
+
+    implementation(platform(libs.androidx.compose.bom.v20250801))
+    implementation(libs.material3)
 
 }
