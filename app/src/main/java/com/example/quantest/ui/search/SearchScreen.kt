@@ -10,17 +10,26 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.quantest.R
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import com.example.quantest.ui.theme.QuanTestTheme
+
 
 @Preview(showBackground = true)
 @Composable
 fun SearchScreenPreview() {
-    SearchScreen()
+    QuanTestTheme {
+        Surface(modifier = Modifier.fillMaxSize()) {
+            SearchScreen()
+        }
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -51,10 +60,10 @@ fun SearchScreen(onBackClick: () -> Unit = {}) {
                 }
             },
             title = {
-                OutlinedTextField(
+                TextField(
                     value = searchText,
                     onValueChange = { searchText = it },
-                    placeholder = { Text("검색") },
+                    placeholder = { Text("검색어를 입력하세요.") },
                     trailingIcon = {
                         if (searchText.isNotEmpty()) {
                             Icon(
@@ -67,7 +76,17 @@ fun SearchScreen(onBackClick: () -> Unit = {}) {
                     singleLine = true,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(40.dp) // 상단바 높이에 맞춤
+                        .height(56.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(MaterialTheme.colorScheme.surfaceVariant),
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = Color.Transparent,
+                        unfocusedContainerColor = Color.Transparent,
+                        disabledContainerColor = Color.Transparent,
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent,
+                        disabledIndicatorColor = Color.Transparent
+                    )
                 )
             }
         )
@@ -117,8 +136,43 @@ fun SearchScreen(onBackClick: () -> Unit = {}) {
                         }
                         .padding(vertical = 12.dp)
                 )
-                //Divider()
+                HorizontalDivider()
             }
         }
     }
+}
+
+
+@Composable
+fun SearchBar() {
+    var searchText by remember { mutableStateOf("") }
+
+    TextField(
+        value = searchText,
+        onValueChange = { searchText = it },
+        placeholder = { Text("") },
+        trailingIcon = {
+            if (searchText.isNotEmpty()) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_cross_circle),
+                    contentDescription = "Clear",
+                    modifier = Modifier.clickable { searchText = "" }
+                )
+            }
+        },
+        singleLine = true,
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(40.dp)
+            .clip(RoundedCornerShape(12.dp)) // 둥근 모서리
+            .background(Color(0xFFF2F2F2)), // 회색 배경
+        colors = TextFieldDefaults.colors(
+            focusedContainerColor = Color.Transparent,   // 배경 직접 넣었으니 투명
+            unfocusedContainerColor = Color.Transparent,
+            disabledContainerColor = Color.Transparent,
+            focusedIndicatorColor = Color.Transparent,  // 밑줄 제거
+            unfocusedIndicatorColor = Color.Transparent,
+            disabledIndicatorColor = Color.Transparent
+        )
+    )
 }
