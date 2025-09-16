@@ -2,6 +2,7 @@ package com.example.quantest.data.model
 
 data class StockRankingData(
     val categoryName: String,
+    val chartDate: String,
     val stocks: List<StockRanking>
 )
 

@@ -1,6 +1,7 @@
 package com.example.quantest.ui.home
 
 import android.util.Log
+import android.util.Log.e
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -18,6 +19,10 @@ class HomeViewModel : ViewModel() {
     private val _stockItems = mutableStateOf<List<StockItem>>(emptyList())
     val stockItems: List<StockItem> get() = _stockItems.value
 
+    private val _chartDate = mutableStateOf<String?>(null)
+    val chartDate: String? get() = _chartDate.value
+
+
     // 오늘 날짜를 yyyy-MM-dd 형식으로 반환
     private fun getTodayFormatted(): String {
         val today = Calendar.getInstance().time
@@ -33,27 +38,29 @@ class HomeViewModel : ViewModel() {
         return formatter.format(calendar.time)
     }
 
-    // TODO: 실제 날짜로 변경
-    //fun loadStocks(category: String, date: String = getYesterdayFormatted()) {
-    fun loadStocks(category: String, date: String = "2025-08-04") {
+    fun loadStocks(category: String, date: String = getTodayFormatted()) {
     viewModelScope.launch {
             try {
                 val response = RetrofitClient.stockApi.getStockRankings(category, date)
                 if (response.isSuccessful) {
-                    Log.d("HomeViewModel", "✅ API 성공: ${response.body()?.data?.categoryName}")
-                    response.body()?.data?.stocks?.let { rankingList ->
-                        Log.d("HomeViewModel", "받은 종목 수: ${rankingList.size}")
+                    val data = response.body()?.data
+                    Log.d("HomeViewModel", "✅ API 성공: ${data?.categoryName}")
 
-                        _stockItems.value = rankingList.mapIndexed { index, dto ->
-                            dto.toStockItem(index)
-                        }
+                    _chartDate.value = data?.chartDate ?: date
+
+                    val rankingList = data?.stocks.orEmpty()
+                    Log.d("HomeViewModel", "받은 종목 수: ${rankingList.size}")
+
+                    _stockItems.value = rankingList.mapIndexed { index, dto ->
+                        dto.toStockItem(index)
                     }
                 } else {
                     Log.e("HomeViewModel", "❌ API 실패: ${response.code()} ${response.message()}")
                 }
             } catch (e: Exception) {
-                // 에러 로깅 또는 UI 처리
-                Log.e("HomeViewModel", "❌ API 호출 중 예외 발생", e)
+                Log.e("HomeViewModel",
+                    "❌API 예외: ${e.javaClass.name}: ${e.message}\n${Log.getStackTraceString(e)}"
+                )
             }
         }
     }
