@@ -43,6 +43,7 @@ fun HomeScreen(
         viewModel.loadStocks(selectedTab.category)
     }
 
+    val chartDate = viewModel.chartDate
     val stockItems = viewModel.stockItems
 
     Scaffold(
@@ -50,7 +51,7 @@ fun HomeScreen(
     ) { innerPadding ->
         Column(modifier = Modifier.padding(innerPadding)) {
 
-            RankingTitle()
+            RankingTitle(chartDate = chartDate)
 
             QuanTestTabRow(
                 tabs = HomeTab.values(),
@@ -71,13 +72,26 @@ fun HomeScreen(
 }
 
 @Composable
-fun RankingTitle() {
-    Text(
-        text = "코스닥 랭킹",
-        fontSize = 20.sp,
-        fontWeight = FontWeight.Bold,
-        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-    )
+fun RankingTitle(chartDate: String?) {
+    Row(
+        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = "코스닥 랭킹",
+            fontSize = 24.sp, // MaterialTheme.typography.titleLarge
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+        if (!chartDate.isNullOrBlank()) {
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = "${chartDate} 기준",
+                fontSize = 13.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    }
 }
 
 @Composable
