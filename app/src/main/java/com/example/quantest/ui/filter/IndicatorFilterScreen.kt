@@ -9,13 +9,18 @@ import com.example.quantest.ui.component.QuanTestOutlinedButton
 import kotlinx.coroutines.flow.StateFlow
 import androidx.compose.runtime.*
 import androidx.compose.foundation.layout.*
+import com.example.quantest.R
 import androidx.compose.material3.*
+import androidx.compose.material3.TooltipDefaults.rememberPlainTooltipPositionProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.res.painterResource
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.quantest.data.model.Indicator
 import com.example.quantest.ui.theme.Navy
+import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun IndicatorFilterScreen(
     viewModel: FilterViewModel = viewModel(),
@@ -33,6 +38,10 @@ fun IndicatorFilterScreen(
     val selectedIndicators by viewModel.selectedIndicators.collectAsState()
     val linesByIndicator by viewModel.linesByIndicator.collectAsState()
     val selectedLineIdsByIndicator by viewModel.selectedLineIdsByIndicator.collectAsState()
+
+    val scope = rememberCoroutineScope()
+    val tooltipState = rememberTooltipState(isPersistent = true)
+    val configs by viewModel.configs.collectAsState()
 
     Column(
         modifier = Modifier
@@ -55,6 +64,52 @@ fun IndicatorFilterScreen(
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onSurface
                 )
+
+                // info 아이콘 + 툴팁
+                Spacer(Modifier.width(8.dp))
+                TooltipBox(
+                    positionProvider = rememberPlainTooltipPositionProvider(),
+                    tooltip = {
+                        PlainTooltip {
+                            if (configs.isEmpty()) {
+                                Text("설정을 불러오는 중…")
+                            } else {
+                                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                                    configs.forEach { config ->
+                                        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                                            Text(
+                                                text = config.indicatorConfigName,
+                                                style = MaterialTheme.typography.labelMedium
+                                            )
+                                            Text(
+                                                text = config.indicatorConfigValue,
+                                                style = MaterialTheme.typography.bodyMedium
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    state = tooltipState
+                ) {
+                    IconButton(
+                        onClick = {
+                            scope.launch {
+                                viewModel.loadConfigs(indicator.indicatorId)
+                                tooltipState.show()   // 아이콘 누르면 툴팁 열기
+                            }
+                        },
+                        modifier = Modifier.size(20.dp)
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_info),
+                            contentDescription = "지표 설정 보기",
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+
                 Spacer(Modifier.weight(1f))
                 TextButton(onClick = { viewModel.removeIndicator(indicator.indicatorId) }) {
                     Text("삭제")
