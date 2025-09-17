@@ -1,9 +1,12 @@
 package com.example.quantest.ui.filter
 
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import com.example.quantest.ui.component.QuanTestOutlinedButton
 
 @Composable
 fun IndicatorFilterScreen() {
-    Text("지표 필터 화면")
+    QuanTestOutlinedButton(
+        onClick = { /* TODO */ },
+        text = "+ 지표 추가"
+    )
 }
