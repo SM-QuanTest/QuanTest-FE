@@ -1,23 +1,14 @@
 package com.example.quantest.ui.filter
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.material3.Text
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -30,13 +21,12 @@ import com.example.quantest.ui.component.QuanTestTabRow
 import com.example.quantest.ui.component.QuanTestTopBar
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
-import androidx.compose.ui.Alignment
-import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import com.example.quantest.R
-import com.example.quantest.ui.theme.Navy
 import androidx.compose.ui.graphics.Color
+import com.example.quantest.data.model.Indicator
+import kotlinx.coroutines.flow.StateFlow
 
 enum class FilterTab(val title: String) {
     DATE("날짜"),
@@ -48,10 +38,11 @@ enum class FilterTab(val title: String) {
 @Composable
 fun FilterScreen(
     viewModel: FilterViewModel = viewModel(),
-    onSearchClick: () -> Unit
+    onSearchClick: () -> Unit,
+    onOpenIndicatorSearch: () -> Unit,
+    indicatorResultFlow: StateFlow<Indicator?>? = null
 ) {
-    var selectedTab by remember { mutableStateOf(FilterTab.DATE) }
-
+    var selectedTab by rememberSaveable { mutableStateOf(FilterTab.DATE) }
 
     Scaffold(
         topBar = { QuanTestTopBar(onSearchClick = onSearchClick) }
@@ -76,7 +67,11 @@ fun FilterScreen(
                 FilterTab.DATE -> DateFilterScreen()
                 FilterTab.INDUSTRY -> IndustryFilterScreen(viewModel)
                 FilterTab.CHART -> ChartFilterScreen()
-                FilterTab.INDICATOR -> IndicatorFilterScreen()
+                FilterTab.INDICATOR -> IndicatorFilterScreen(
+                    viewModel,
+                    onAddIndicatorClick = onOpenIndicatorSearch,
+                    selectedIndicatorFlow = indicatorResultFlow
+                )
             }
 
         }

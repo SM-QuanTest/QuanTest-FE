@@ -11,6 +11,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.example.quantest.data.model.Indicator
 import com.example.quantest.ui.component.QuanTestBottomBar
 import com.example.quantest.ui.filter.FilterScreen
 import com.example.quantest.ui.home.HomeScreen
@@ -48,7 +49,12 @@ fun QuanTestApp() {
                 FilterScreen(
                     onSearchClick = {
                         navController.navigate(NavRoute.Search.route)
-                    }
+                    },
+                    onOpenIndicatorSearch = {
+                        navController.navigate(NavRoute.Search.route) },
+                    indicatorResultFlow = navController.currentBackStackEntry
+                        ?.savedStateHandle
+                        ?.getStateFlow<Indicator?>(key = "indicator_result", initialValue = null)
                 )
             }
 
@@ -69,7 +75,13 @@ fun QuanTestApp() {
 
             composable(route = NavRoute.Search.route) {
                 SearchScreen(
-                    onBackClick = { navController.popBackStack() }
+                    onBackClick = { navController.popBackStack() },
+                    onSelect = { indicator ->
+                        navController.previousBackStackEntry
+                            ?.savedStateHandle
+                            ?.set("indicator_result", indicator)
+                        navController.popBackStack()
+                    }
                 )
             }
 
