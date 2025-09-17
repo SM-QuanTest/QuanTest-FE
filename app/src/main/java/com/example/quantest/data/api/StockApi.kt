@@ -2,10 +2,12 @@ package com.example.quantest.data.api
 
 import com.example.quantest.data.model.BaseResponse
 import com.example.quantest.data.model.ChartData
+import com.example.quantest.data.model.Indicator
+import com.example.quantest.data.model.IndicatorLine
 import com.example.quantest.data.model.LatestChartData
 import com.example.quantest.data.model.Pattern
 import com.example.quantest.data.model.PatternStockItem
-import com.example.quantest.data.model.SectorResponse
+import com.example.quantest.data.model.Sector
 import com.example.quantest.data.model.StockRankingData
 import retrofit2.Response
 import retrofit2.http.GET
@@ -32,7 +34,7 @@ interface StockApi {
     @GET("/charts/{stockId}/latest")
     suspend fun getLatestChartData(@Path("stockId") stockId: Int): Response<BaseResponse<LatestChartData>>
 
-    // 패턴 다건 조회(상승/하락) (+패턴 이미지 url 추가)
+    // 패턴 다건 조회(상승/하락)
     @GET("/patterns")
     suspend fun getPatterns(
         @Query("type") type: String? = null // "BULLISH" or "BEARISH"
@@ -46,5 +48,15 @@ interface StockApi {
 
     // 업종 다건 조회
     @GET("/sectors")
-    suspend fun getSectors(): SectorResponse
+    suspend fun getSectors(): BaseResponse<List<Sector>>
+
+    // 지표 이름 다건 조회
+    @GET("/indicators")
+    suspend fun getIndicators(): BaseResponse<List<Indicator>>
+
+    // 지표에 따른 지표 라인 다건 조회
+    @GET("/indicators/{indicatorId}/lines")
+    suspend fun getIndicatorLines(
+        @Path("indicatorId") indicatorId: Int
+    ): BaseResponse<List<IndicatorLine>>
 }

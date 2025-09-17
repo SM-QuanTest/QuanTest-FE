@@ -1,5 +1,7 @@
 package com.example.quantest.ui.pattern
 
+import android.util.Log
+import android.util.Log.e
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.quantest.data.model.Pattern
@@ -48,14 +50,20 @@ class PatternViewModel : ViewModel() {
                             )
                         }
                         _patterns.value = patternList
+
+                        Log.d("PatternViewModel", "불러온 패턴 리스트: $patternList")
                     } ?: run {
                         _errorMessage.value = "No data"
+                        Log.e("PatternViewModel", "❌API 성공했지만 body.data=null")
                     }
                 } else {
                     _errorMessage.value = "API error: ${response.code()}"
+                    Log.e("PatternViewModel", "❌API 실패 code=${response.code()}, message=${response.message()}")
+
                 }
             } catch (e: Exception) {
                 _errorMessage.value = "Exception: ${e.message}"
+                Log.e("PatternViewModel", "❌예외 발생", e)
             }
         }
     }

@@ -44,29 +44,24 @@ fun PatternScreen(
     onSearchClick: () -> Unit,
     onPatternClick: (Int) -> Unit
 ) {
-    var selectedTab by rememberSaveable { mutableStateOf(PatternTab.BULLISH) }
+    val selectedTabIndex by viewModel.selectedTabIndex.collectAsState()
+    val selectedTab = PatternTab.values()[selectedTabIndex]
 
     val patternList by viewModel.patterns.collectAsState()
-    val filteredPatterns by remember(patternList, selectedTab) {
-        derivedStateOf { patternList.filter { it.patternDirection == selectedTab.direction } }
-    }
 
-    Scaffold(
-        topBar = { QuanTestTopBar(onSearchClick = onSearchClick) }
-    ) { innerPadding ->
-        Column(modifier = Modifier
-            .padding(innerPadding)
-            .fillMaxSize()) {
-
-            // 상단 탭
+    Scaffold(topBar = { QuanTestTopBar(onSearchClick = onSearchClick) }) { innerPadding ->
+        Column(
+            modifier = Modifier
+                .padding(innerPadding)
+                .fillMaxSize()
+        ) {
             QuanTestTabRow(
                 tabs = PatternTab.values(),
                 selected = selectedTab,
-                onSelected = { selectedTab = it },
+                onSelected = { tab -> viewModel.setSelectedTabIndex(tab.ordinal) },
                 titleProvider = { it.title }
             )
 
-            // 패턴 카드 리스트 (3열 그리드)
             LazyVerticalGrid(
                 columns = GridCells.Fixed(2),
                 modifier = Modifier.fillMaxSize(),
@@ -74,20 +69,16 @@ fun PatternScreen(
                 verticalArrangement = Arrangement.spacedBy(16.dp),
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                items(filteredPatterns) { pattern ->
+                items(patternList) { pattern ->
                     PatternCard(
                         pattern = pattern,
-                        onClick = {
-                            Log.d("PatternScreen", "Clicked patternId: ${pattern.patternId}")
-                            onPatternClick(pattern.patternId)
-                        }
+                        onClick = { onPatternClick(pattern.patternId) }
                     )
                 }
             }
         }
     }
 }
-
 
 private val IMAGE_BASE_URL: HttpUrl = RetrofitClient.BASE_URL.toHttpUrl()
 

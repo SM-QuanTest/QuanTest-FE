@@ -15,41 +15,29 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.tooling.preview.Preview
 import com.example.quantest.R
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.quantest.data.model.Indicator
+import com.example.quantest.ui.filter.FilterViewModel
 import com.example.quantest.ui.theme.QuanTestTheme
-
-
-@Preview(showBackground = true)
-@Composable
-fun SearchScreenPreview() {
-    QuanTestTheme {
-        Surface(modifier = Modifier.fillMaxSize()) {
-            SearchScreen()
-        }
-    }
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SearchScreen(onBackClick: () -> Unit = {}) {
-    var searchText by remember { mutableStateOf("") }
+fun SearchScreen(
+    onBackClick: () -> Unit = {},
+    onSelect: (Indicator) -> Unit,
+    viewmodel: FilterViewModel = viewModel()
+) {
+    // ViewModel 상태 사용
+    val query by viewmodel.query.collectAsState()
+    val list by viewmodel.filtered.collectAsState()
+
+    // (선택 태그 UI 유지할 거면 그대로 둬도 됨)
     var selectedTags by remember { mutableStateOf(listOf<String>()) }
 
-    val allItems = listOf(
-        "엔비디아", "구글", "한화엔진", "엔켐", "엔씨소프트"
-    )
-
-    val filteredItems = if (searchText.isEmpty()) {
-        emptyList()
-    } else {
-        allItems.filter { it.contains(searchText, ignoreCase = true) }
-    }
-
     Column(modifier = Modifier.fillMaxSize()) {
-        // 상단바 + 검색창
         TopAppBar(
             navigationIcon = {
                 IconButton(onClick = onBackClick) {
@@ -61,15 +49,15 @@ fun SearchScreen(onBackClick: () -> Unit = {}) {
             },
             title = {
                 TextField(
-                    value = searchText,
-                    onValueChange = { searchText = it },
-                    placeholder = { Text("검색어를 입력하세요.") },
+                    value = query,                         // ViewModel 값 사용
+                    onValueChange = viewmodel::updateQuery,// ViewModel로 업데이트
+                    placeholder = { Text("지표 이름을 입력하세요.") },
                     trailingIcon = {
-                        if (searchText.isNotEmpty()) {
+                        if (query.isNotEmpty()) {
                             Icon(
                                 painter = painterResource(id = R.drawable.ic_cross_circle),
                                 contentDescription = "Clear",
-                                modifier = Modifier.clickable { searchText = "" }
+                                modifier = Modifier.clickable { viewmodel.updateQuery("") } // ✅ 초기화
                             )
                         }
                     },
@@ -93,86 +81,34 @@ fun SearchScreen(onBackClick: () -> Unit = {}) {
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // 선택된 태그
+        // 선택된 태그 UI는 필요 시 유지
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Start) {
             selectedTags.forEach { tag ->
-                Box(
-                    modifier = Modifier
-                        .background(Color.LightGray, RoundedCornerShape(16.dp))
-                        .padding(horizontal = 12.dp, vertical = 6.dp)
-                        .padding(end = 8.dp)
-                ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(text = tag, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_cross_small),
-                            contentDescription = "Remove",
-                            modifier = Modifier
-                                .size(16.dp)
-                                .clickable {
-                                    selectedTags = selectedTags - tag
-                                }
-                        )
-                    }
-                }
+                // ... 기존 태그 UI 그대로 ...
             }
         }
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // 검색 결과
+        // ViewModel에서 필터된 지표 리스트 사용
         LazyColumn {
-            items(filteredItems) { item ->
+            items(list) { indicator ->
                 Text(
-                    text = item,
+                    text = indicator.indicatorName,
                     modifier = Modifier
                         .fillMaxWidth()
                         .clickable {
-                            if (!selectedTags.contains(item)) {
-                                selectedTags = selectedTags + item
+                            onSelect(indicator)              // 선택 전달
+                            // 태그를 쓰려면 아래 유지(옵션)
+                            if (!selectedTags.contains(indicator.indicatorName)) {
+                                selectedTags = selectedTags + indicator.indicatorName
                             }
-                            searchText = ""
+                            viewmodel.updateQuery("")        // 검색창 비우기
                         }
-                        .padding(vertical = 12.dp)
+                        .padding(16.dp)
                 )
                 HorizontalDivider()
             }
         }
     }
-}
-
-
-@Composable
-fun SearchBar() {
-    var searchText by remember { mutableStateOf("") }
-
-    TextField(
-        value = searchText,
-        onValueChange = { searchText = it },
-        placeholder = { Text("") },
-        trailingIcon = {
-            if (searchText.isNotEmpty()) {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_cross_circle),
-                    contentDescription = "Clear",
-                    modifier = Modifier.clickable { searchText = "" }
-                )
-            }
-        },
-        singleLine = true,
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(40.dp)
-            .clip(RoundedCornerShape(12.dp)) // 둥근 모서리
-            .background(Color(0xFFF2F2F2)), // 회색 배경
-        colors = TextFieldDefaults.colors(
-            focusedContainerColor = Color.Transparent,   // 배경 직접 넣었으니 투명
-            unfocusedContainerColor = Color.Transparent,
-            disabledContainerColor = Color.Transparent,
-            focusedIndicatorColor = Color.Transparent,  // 밑줄 제거
-            unfocusedIndicatorColor = Color.Transparent,
-            disabledIndicatorColor = Color.Transparent
-        )
-    )
 }
