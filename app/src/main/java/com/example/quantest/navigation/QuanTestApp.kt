@@ -17,7 +17,8 @@ import com.example.quantest.ui.filter.FilterScreen
 import com.example.quantest.ui.home.HomeScreen
 import com.example.quantest.ui.menu.MenuScreen
 import com.example.quantest.ui.pattern.PatternScreen
-import com.example.quantest.ui.search.SearchScreen
+import com.example.quantest.ui.search.SearchIndicatorScreen
+import com.example.quantest.ui.search.SearchStockScreen
 import com.example.quantest.ui.stockdetail.StockDetailScreen
 import com.example.quantest.ui.stocklist.StockListScreen
 
@@ -37,7 +38,7 @@ fun QuanTestApp() {
             composable(route = NavRoute.Home.route) {
                 HomeScreen(
                     onSearchClick = {
-                        navController.navigate(NavRoute.Search.route)
+                        navController.navigate(NavRoute.SearchStock.route)
                     },
                     onStockClick = { stockId ->
                         navController.navigate(NavRoute.StockDetail.buildRoute(stockId))
@@ -48,10 +49,10 @@ fun QuanTestApp() {
             composable(route = NavRoute.Filter.route) {
                 FilterScreen(
                     onSearchClick = {
-                        navController.navigate(NavRoute.Search.route)
+                        navController.navigate(NavRoute.SearchStock.route)
                     },
                     onOpenIndicatorSearch = {
-                        navController.navigate(NavRoute.Search.route) },
+                        navController.navigate(NavRoute.SearchIndicator.route) },
                     onApplyClick = {}, // TODO
                     indicatorResultFlow = navController.currentBackStackEntry
                         ?.savedStateHandle
@@ -62,7 +63,7 @@ fun QuanTestApp() {
             composable(route = NavRoute.Pattern.route) {
                 PatternScreen(
                     onSearchClick = {
-                        navController.navigate(NavRoute.Search.route)
+                        navController.navigate(NavRoute.SearchStock.route)
                     },
                     onPatternClick = { patternId ->
                         navController.navigate(NavRoute.StockList.buildRoute(patternId))
@@ -74,8 +75,20 @@ fun QuanTestApp() {
                 MenuScreen()
             }
 
-            composable(route = NavRoute.Search.route) {
-                SearchScreen(
+            composable(route = NavRoute.SearchStock.route) {
+                SearchStockScreen(
+                    onBackClick = { navController.popBackStack() },
+                    onSelect = { indicator -> // TODO: 해당 종목 화면으로 이동
+                        navController.previousBackStackEntry
+                            ?.savedStateHandle
+                            ?.set("indicator_result", indicator)
+                        navController.popBackStack()
+                    }
+                )
+            }
+
+            composable(route = NavRoute.SearchIndicator.route) {
+                SearchIndicatorScreen(
                     onBackClick = { navController.popBackStack() },
                     onSelect = { indicator ->
                         navController.previousBackStackEntry

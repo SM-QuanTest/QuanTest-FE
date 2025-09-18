@@ -5,7 +5,8 @@ sealed class NavRoute(val route: String) {
     data object Filter: NavRoute("filter")
     data object Pattern: NavRoute("pattern")
     data object Menu: NavRoute("menu")
-    data object Search: NavRoute("search")
+    data object SearchIndicator: NavRoute("searchIndicator")
+    data object SearchStock: NavRoute("searchStock")
 
     data object StockDetail : NavRoute("stockDetail/{stockId}") {
         fun buildRoute(id: Int) = "stockDetail/$id"
