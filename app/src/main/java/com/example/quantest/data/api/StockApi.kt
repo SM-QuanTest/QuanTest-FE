@@ -3,6 +3,7 @@ package com.example.quantest.data.api
 import com.example.quantest.data.model.BaseResponse
 import com.example.quantest.data.model.ChartData
 import com.example.quantest.data.model.Indicator
+import com.example.quantest.data.model.IndicatorConfig
 import com.example.quantest.data.model.IndicatorLine
 import com.example.quantest.data.model.LatestChartData
 import com.example.quantest.data.model.Pattern
@@ -59,4 +60,10 @@ interface StockApi {
     suspend fun getIndicatorLines(
         @Path("indicatorId") indicatorId: Int
     ): BaseResponse<List<IndicatorLine>>
+
+    // 지표에 따른 지표 설정 다건 조회
+    @GET("/indicators/{indicatorId}/configs")
+    suspend fun getIndicatorConfigs(
+        @Path("indicatorId") indicatorId: Int
+    ): BaseResponse<List<IndicatorConfig>>
 }

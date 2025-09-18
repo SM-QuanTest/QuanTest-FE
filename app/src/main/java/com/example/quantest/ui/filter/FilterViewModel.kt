@@ -3,7 +3,9 @@ package com.example.quantest.ui.filter
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.quantest.data.api.RetrofitClient
+import com.example.quantest.data.api.StockApi
 import com.example.quantest.data.model.Indicator
+import com.example.quantest.data.model.IndicatorConfig
 import com.example.quantest.data.model.IndicatorLine
 import com.example.quantest.data.model.Sector
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -108,21 +110,21 @@ class FilterViewModel : ViewModel() {
     private val _selectedLineIdsByIndicator = MutableStateFlow<Map<Int, Set<Int>>>(emptyMap())
     val selectedLineIdsByIndicator: StateFlow<Map<Int, Set<Int>>> = _selectedLineIdsByIndicator
 
-    //** 지표 추가 (중복 방지) + 라인 로딩 */
+    // 지표 추가 (중복 방지) + 라인 로딩
     fun addIndicator(ind: Indicator) {
         if (_selectedIndicators.value.any { it.indicatorId == ind.indicatorId }) return
         _selectedIndicators.value = _selectedIndicators.value + ind
         loadIndicatorLines(ind.indicatorId)
     }
 
-    //** 지표 제거 */
+    // 지표 제거
     fun removeIndicator(indicatorId: Int) {
         _selectedIndicators.value = _selectedIndicators.value.filterNot { it.indicatorId == indicatorId }
         _linesByIndicator.value = _linesByIndicator.value - indicatorId
         _selectedLineIdsByIndicator.value = _selectedLineIdsByIndicator.value - indicatorId
     }
 
-    //** 라인 로딩 */
+    // 라인 로딩
     fun loadIndicatorLines(indicatorId: Int) = viewModelScope.launch {
         runCatching { RetrofitClient.stockApi.getIndicatorLines(indicatorId) }
             .onSuccess { res ->
@@ -138,11 +140,28 @@ class FilterViewModel : ViewModel() {
             }
     }
 
-    //** 라인 토글 */
+    // 라인 토글
     fun toggleLine(indicatorId: Int, lineId: Int) {
         val cur = _selectedLineIdsByIndicator.value[indicatorId].orEmpty().toMutableSet()
         if (cur.contains(lineId)) cur.remove(lineId) else cur.add(lineId)
         _selectedLineIdsByIndicator.value =
             _selectedLineIdsByIndicator.value + (indicatorId to cur)
     }
+
+    // 지표 설정
+    private val _configs = MutableStateFlow<List<IndicatorConfig>>(emptyList())
+    val configs: StateFlow<List<IndicatorConfig>> = _configs
+
+    fun loadConfigs(indicatorId: Int) {
+        viewModelScope.launch {
+            runCatching { RetrofitClient.stockApi.getIndicatorConfigs(indicatorId).data }
+                .onSuccess { list ->
+                    _configs.value = list
+                }
+                .onFailure {
+                    _configs.value = emptyList()
+                }
+        }
+    }
+
 }

@@ -11,3 +11,8 @@ data class IndicatorLine(
     val indicatorLineId: Int,
     val indicatorLineName: String
 )
+
+data class IndicatorConfig(
+    val indicatorConfigName: String,
+    val indicatorConfigValue: String
+)
