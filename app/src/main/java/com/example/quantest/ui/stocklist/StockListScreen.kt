@@ -96,7 +96,7 @@ fun StockListScreen(
                     items(stocks.filterByTab(selectedTab)) { stock ->
                         StockListItem(
                             name = stock.stockName,
-                            price = stock.chartClose.toString(),
+                            price = stock.chartClose,
                             change = "${(stock.chartChangePercentage * 100).format(2)}%",
                             direction = stock.toChangeDirection(),
                             onClick = { onStockClick(stock.stockId) }
@@ -111,7 +111,6 @@ fun StockListScreen(
 fun Double.format(digits: Int) = "%.${digits}f".format(this)
 
 // 상단 탭
-enum class ChangeDirection { UP, DOWN, FLAT }
 
 fun PatternStockItem.toChangeDirection(): ChangeDirection {
     return when (recordDirection.lowercaseChar()) {
@@ -159,75 +158,6 @@ fun StockTabBar(
                         }
                     )
                 }
-            )
-        }
-    }
-}
-
-// 리스트 아이템
-@Composable
-fun StockListItem(
-    name: String,
-    price: String,
-    change: String,
-    direction: ChangeDirection,
-    onClick: () -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        // 종목 이미지
-        AsyncImage(
-            model = "",
-            contentDescription = "${name} 로고",
-            modifier = Modifier
-                .size(36.dp)
-                .clip(RoundedCornerShape(18.dp)),
-            placeholder = painterResource(id = R.drawable.ic_placeholder),
-            error = painterResource(id = R.drawable.ic_placeholder)
-        )
-
-        Spacer(modifier = Modifier.width(12.dp))
-
-        Column(modifier = Modifier.weight(1f)) {
-            Text(text = name, fontWeight = FontWeight.Bold)
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(text = price, fontSize = 12.sp)
-                Spacer(modifier = Modifier.width(4.dp))
-                Text(
-                    text = change,
-                    fontSize = 12.sp,
-                    color = when (direction) {
-                        ChangeDirection.UP -> Red
-                        ChangeDirection.DOWN -> Blue
-                        ChangeDirection.FLAT -> MaterialTheme.colorScheme.onSurfaceVariant
-                    }
-                )
-            }
-        }
-
-        // 방향 아이콘
-        when (direction) {
-            ChangeDirection.UP -> Icon(
-                painter = painterResource(id = R.drawable.ic_arrow_up),
-                contentDescription = "상승",
-                tint = Red,
-                modifier = Modifier.size(16.dp)
-            )
-            ChangeDirection.DOWN -> Icon(
-                painter = painterResource(id = R.drawable.ic_arrow_down),
-                contentDescription = "하락",
-                tint = Blue,
-                modifier = Modifier.size(16.dp)
-            )
-            ChangeDirection.FLAT -> Icon(
-                painter = painterResource(id = R.drawable.ic_flat),
-                contentDescription = "보합",
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.size(16.dp)
             )
         }
     }

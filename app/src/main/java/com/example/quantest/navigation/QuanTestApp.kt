@@ -4,7 +4,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
@@ -14,10 +16,13 @@ import androidx.navigation.navArgument
 import com.example.quantest.data.model.Indicator
 import com.example.quantest.ui.component.QuanTestBottomBar
 import com.example.quantest.ui.filter.FilterScreen
+import com.example.quantest.ui.filter.FilterViewModel
+import com.example.quantest.ui.filter.FilterResultScreen
 import com.example.quantest.ui.home.HomeScreen
 import com.example.quantest.ui.menu.MenuScreen
 import com.example.quantest.ui.pattern.PatternScreen
-import com.example.quantest.ui.search.SearchScreen
+import com.example.quantest.ui.search.SearchIndicatorScreen
+import com.example.quantest.ui.search.SearchStockScreen
 import com.example.quantest.ui.stockdetail.StockDetailScreen
 import com.example.quantest.ui.stocklist.StockListScreen
 
@@ -37,7 +42,7 @@ fun QuanTestApp() {
             composable(route = NavRoute.Home.route) {
                 HomeScreen(
                     onSearchClick = {
-                        navController.navigate(NavRoute.Search.route)
+                        navController.navigate(NavRoute.SearchStock.route)
                     },
                     onStockClick = { stockId ->
                         navController.navigate(NavRoute.StockDetail.buildRoute(stockId))
@@ -48,20 +53,38 @@ fun QuanTestApp() {
             composable(route = NavRoute.Filter.route) {
                 FilterScreen(
                     onSearchClick = {
-                        navController.navigate(NavRoute.Search.route)
+                        navController.navigate(NavRoute.SearchStock.route)
                     },
                     onOpenIndicatorSearch = {
-                        navController.navigate(NavRoute.Search.route) },
+                        navController.navigate(NavRoute.SearchIndicator.route) },
+                    onNavigateToResult = { navController.navigate(NavRoute.FilterResult.route) },
                     indicatorResultFlow = navController.currentBackStackEntry
                         ?.savedStateHandle
                         ?.getStateFlow<Indicator?>(key = "indicator_result", initialValue = null)
                 )
             }
 
+            composable(route = NavRoute.FilterResult.route) { backStackEntry ->
+                // Filter 라우트의 BackStackEntry를 parent로 가져와 같은 VM 사용
+                val parentEntry = remember(backStackEntry) {
+                    navController.getBackStackEntry(NavRoute.Filter.route)
+                }
+                val filterViewModel: FilterViewModel = viewModel(parentEntry)
+
+                FilterResultScreen(
+                    viewModel = filterViewModel,              // 같은 VM 전달
+                    onBackClick = { navController.popBackStack() },
+                    onStockClick = { stockId ->
+                        navController.navigate(NavRoute.StockDetail.buildRoute(stockId.toInt()))
+                    }
+                )
+            }
+
+
             composable(route = NavRoute.Pattern.route) {
                 PatternScreen(
                     onSearchClick = {
-                        navController.navigate(NavRoute.Search.route)
+                        navController.navigate(NavRoute.SearchStock.route)
                     },
                     onPatternClick = { patternId ->
                         navController.navigate(NavRoute.StockList.buildRoute(patternId))
@@ -73,8 +96,20 @@ fun QuanTestApp() {
                 MenuScreen()
             }
 
-            composable(route = NavRoute.Search.route) {
-                SearchScreen(
+            composable(route = NavRoute.SearchStock.route) {
+                SearchStockScreen(
+                    onBackClick = { navController.popBackStack() },
+                    onSelect = { indicator -> // TODO: 해당 종목 화면으로 이동
+                        navController.previousBackStackEntry
+                            ?.savedStateHandle
+                            ?.set("indicator_result", indicator)
+                        navController.popBackStack()
+                    }
+                )
+            }
+
+            composable(route = NavRoute.SearchIndicator.route) {
+                SearchIndicatorScreen(
                     onBackClick = { navController.popBackStack() },
                     onSelect = { indicator ->
                         navController.previousBackStackEntry

@@ -1,12 +1,11 @@
 package com.example.quantest.ui.home
 
 import android.util.Log
-import android.util.Log.e
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.quantest.data.api.RetrofitClient
-import com.example.quantest.data.model.StockRanking
+import com.example.quantest.data.model.StockResponse
 import com.example.quantest.model.ChangeDirection
 import com.example.quantest.model.StockItem
 import kotlinx.coroutines.launch
@@ -65,7 +64,7 @@ class HomeViewModel : ViewModel() {
         }
     }
 
-    private fun StockRanking.toStockItem(rank: Int): StockItem {
+    private fun StockResponse.toStockItem(rank: Int): StockItem {
         val direction = when (recordDirection?.lowercaseChar()) {
             'u' -> ChangeDirection.UP
             'd' -> ChangeDirection.DOWN
@@ -79,7 +78,7 @@ class HomeViewModel : ViewModel() {
             name = stockName,
             imageUrl = "", // 없으면 빈 문자열
             price = chartClose,
-            change = "${if (chartChangePercentage >= 0) "+" else ""}${chartChangePercentage}%",
+            change = "${if (chartChangePercentage > 0) "+" else ""}${chartChangePercentage}%",
             direction = direction
         )
     }
