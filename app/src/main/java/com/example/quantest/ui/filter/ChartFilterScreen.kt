@@ -8,31 +8,19 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.quantest.ui.theme.QuanTestTheme
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
+import com.example.quantest.data.model.PriceType
 import com.example.quantest.ui.component.QuanTestOutlinedButton
 
-@Preview(
-    name = "ChartFilterScreen - Light",
-    showBackground = true,
-    backgroundColor = 0xFFFFFFFF
-)
-@Composable
-private fun Preview_ChartFilterScreen_Light() {
-    QuanTestTheme {
-        Surface(modifier = Modifier.fillMaxSize()) {
-            ChartFilterScreen()
-        }
-    }
-}
 
 @Composable
-fun ChartFilterScreen() {
+fun ChartFilterScreen(
+    viewModel: FilterViewModel
+) {
     val scrollState = rememberScrollState()
 
     Column(
@@ -40,15 +28,15 @@ fun ChartFilterScreen() {
         .fillMaxSize()
         .verticalScroll(scrollState)
     ) {
-        ChartRangeRow(label = "시가")
+        ChartRangeRow(label = "시가", type = PriceType.OPEN, onApply = viewModel::applyChartRange)
         HorizontalDivider()
-        ChartRangeRow(label = "종가")
+        ChartRangeRow(label = "종가", type = PriceType.CLOSE, onApply = viewModel::applyChartRange)
         HorizontalDivider()
-        ChartRangeRow(label = "고가")
+        ChartRangeRow(label = "고가", type = PriceType.HIGH, onApply = viewModel::applyChartRange)
         HorizontalDivider()
-        ChartRangeRow(label = "저가")
+        ChartRangeRow(label = "저가", type = PriceType.LOW, onApply = viewModel::applyChartRange)
         HorizontalDivider()
-        ChartRangeRow(label = "거래량")
+        ChartRangeRow(label = "거래량", type = PriceType.VOLUME, onApply = viewModel::applyChartRange)
         HorizontalDivider()
         Spacer(Modifier.height(24.dp))
     }
@@ -57,6 +45,8 @@ fun ChartFilterScreen() {
 @Composable
 private fun ChartRangeRow(
     label: String,
+    type: PriceType,
+    onApply: (PriceType, Int?, Int?) -> Unit
 ) {
     var minText by remember { mutableStateOf("") }
     var maxText by remember { mutableStateOf("") }
@@ -88,7 +78,7 @@ private fun ChartRangeRow(
 
             Text(
                 text = " - ",
-                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(horizontal = 8.dp)
             )
 
@@ -103,7 +93,11 @@ private fun ChartRangeRow(
             Spacer(Modifier.width(8.dp))
 
             QuanTestOutlinedButton(
-                onClick = { /* TODO */ },
+                onClick = {
+                    val min = minText.toIntOrNull()
+                    val max = maxText.toIntOrNull()
+                    onApply(type, min, max)     // ViewModel 상태에 반영
+                },
                 text = "적용"
             )
         }

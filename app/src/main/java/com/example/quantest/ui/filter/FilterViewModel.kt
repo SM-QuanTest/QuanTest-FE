@@ -3,45 +3,52 @@ package com.example.quantest.ui.filter
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.quantest.data.api.RetrofitClient
-import com.example.quantest.data.api.StockApi
+import com.example.quantest.data.model.ChartFilter
+import com.example.quantest.data.model.ChartFilterUi
 import com.example.quantest.data.model.CompareOp
+import com.example.quantest.data.model.FilterRequest
 import com.example.quantest.data.model.Indicator
 import com.example.quantest.data.model.IndicatorConfig
+import com.example.quantest.data.model.IndicatorFilter
 import com.example.quantest.data.model.IndicatorLine
+import com.example.quantest.data.model.IndicatorLineFilter
 import com.example.quantest.data.model.LineCompareState
 import com.example.quantest.data.model.LineComparison
+import com.example.quantest.data.model.PriceType
 import com.example.quantest.data.model.Sector
+import com.example.quantest.data.model.StockResponse
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
+import kotlin.collections.map
+import kotlin.collections.orEmpty
 
 class FilterViewModel : ViewModel() {
 
+    // ── 로딩/에러 ────────────────────────────────────────────────────────
     private val _loading = MutableStateFlow(false)
     val loading: StateFlow<Boolean> = _loading
 
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error
 
-    // 업종 목록 로드
+    // ── 업종 선택 ─────────────────────────────────────────────────────────
     private val _sectors = MutableStateFlow<List<Sector>>(emptyList())
     val sectors: StateFlow<List<Sector>> = _sectors
 
     private val _selectedIds = MutableStateFlow<Set<Int>>(emptySet())
     val selectedIds: StateFlow<Set<Int>> = _selectedIds
 
-
-    // 업종 목록 로드 (/sectors)
     fun loadSectors() {
         if (_loading.value || _sectors.value.isNotEmpty()) return
         viewModelScope.launch {
             _loading.value = true
             _error.value = null
             try {
-                val res = RetrofitClient.stockApi.getSectors() // SectorResponse
+                val res = RetrofitClient.stockApi.getSectors()
                 _sectors.value = res.data
             } catch (t: Throwable) {
                 _error.value = t.message ?: "업종 목록 로드 실패"
@@ -51,22 +58,29 @@ class FilterViewModel : ViewModel() {
         }
     }
 
-    /** 토글 선택 */
     fun toggleSector(id: Int) {
         _selectedIds.value = _selectedIds.value.toMutableSet().apply {
             if (contains(id)) remove(id) else add(id)
         }
     }
 
-    /** 칩 X 버튼 */
-    fun removeSector(id: Int) {
-        _selectedIds.value = _selectedIds.value - id
-    }
-
+    fun removeSector(id: Int) { _selectedIds.value = _selectedIds.value - id }
     fun clearSelected() { _selectedIds.value = emptySet() }
     fun setSelected(ids: Set<Int>) { _selectedIds.value = ids }
 
-    // 지표 이름 다건 조회
+    // ── 차트 범위 선택(칩/요청 변환용) ─────────────────────────────────────
+    private val _chartSelections = MutableStateFlow<Map<PriceType, ChartRangeSelection>>(emptyMap())
+    val chartSelections: StateFlow<Map<PriceType, ChartRangeSelection>> = _chartSelections
+
+    fun applyChartRange(type: PriceType, min: Int?, max: Int?) {
+        _chartSelections.value = _chartSelections.value + (type to ChartRangeSelection(type, min, max))
+    }
+    fun removeChartSelection(type: PriceType) {
+        _chartSelections.value = _chartSelections.value - type
+    }
+    fun clearChartSelections() { _chartSelections.value = emptyMap() }
+
+    // ── 지표 검색/선택 ────────────────────────────────────────────────────
     private val _query = MutableStateFlow("")
     val query: StateFlow<String> = _query
 
@@ -90,7 +104,7 @@ class FilterViewModel : ViewModel() {
             else all.filter { it.indicatorName.contains(q, ignoreCase = true) }
         }.stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
-    // 지표에 따른 지표 라인 다건 조회
+    // ── 지표 라인/선택 상태 ───────────────────────────────────────────────
     private val _indicatorLines = MutableStateFlow<List<IndicatorLine>>(emptyList())
     val indicatorLines: StateFlow<List<IndicatorLine>> = _indicatorLines
 
@@ -102,18 +116,15 @@ class FilterViewModel : ViewModel() {
         _selectedLineIds.value = emptySet()
     }
 
-    // ── 선택된 지표 목록
     private val _selectedIndicators = MutableStateFlow<List<Indicator>>(emptyList())
     val selectedIndicators: StateFlow<List<Indicator>> = _selectedIndicators
 
-    // 지표별 라인 목록/선택상태
     private val _linesByIndicator = MutableStateFlow<Map<Int, List<IndicatorLine>>>(emptyMap())
     val linesByIndicator: StateFlow<Map<Int, List<IndicatorLine>>> = _linesByIndicator
 
     private val _selectedLineIdsByIndicator = MutableStateFlow<Map<Int, Set<Int>>>(emptyMap())
     val selectedLineIdsByIndicator: StateFlow<Map<Int, Set<Int>>> = _selectedLineIdsByIndicator
 
-    // 라인 로딩
     fun loadIndicatorLines(indicatorId: Int) = viewModelScope.launch {
         runCatching { RetrofitClient.stockApi.getIndicatorLines(indicatorId) }
             .onSuccess { res ->
@@ -129,7 +140,6 @@ class FilterViewModel : ViewModel() {
             }
     }
 
-    // 라인 토글
     fun toggleLine(indicatorId: Int, lineId: Int) {
         val cur = _selectedLineIdsByIndicator.value[indicatorId].orEmpty().toMutableSet()
         if (cur.contains(lineId)) cur.remove(lineId) else cur.add(lineId)
@@ -137,37 +147,29 @@ class FilterViewModel : ViewModel() {
             _selectedLineIdsByIndicator.value + (indicatorId to cur)
     }
 
-    // 지표 설정
+    // ── 지표 설정 ────────────────────────────────────────────────────────
     private val _configs = MutableStateFlow<List<IndicatorConfig>>(emptyList())
     val configs: StateFlow<List<IndicatorConfig>> = _configs
 
     fun loadConfigs(indicatorId: Int) {
         viewModelScope.launch {
             runCatching { RetrofitClient.stockApi.getIndicatorConfigs(indicatorId).data }
-                .onSuccess { list ->
-                    _configs.value = list
-                }
-                .onFailure {
-                    _configs.value = emptyList()
-                }
+                .onSuccess { list -> _configs.value = list }
+                .onFailure { _configs.value = emptyList() }
         }
     }
 
-    // 지표별 라인비교 상태
+    // ── 라인 비교 선택 상태 ───────────────────────────────────────────────
     private val _compareByIndicator = MutableStateFlow<Map<Int, LineCompareState>>(emptyMap())
     val compareByIndicator: StateFlow<Map<Int, LineCompareState>> = _compareByIndicator
 
-    //** 지표 추가 시 라인비교 상태도 초기화 */
     fun addIndicator(ind: Indicator) {
         if (_selectedIndicators.value.any { it.indicatorId == ind.indicatorId }) return
         _selectedIndicators.value = _selectedIndicators.value + ind
         loadIndicatorLines(ind.indicatorId)
-
-        _compareByIndicator.value =
-            _compareByIndicator.value + (ind.indicatorId to LineCompareState())
+        _compareByIndicator.value = _compareByIndicator.value + (ind.indicatorId to LineCompareState())
     }
 
-    //** 지표 제거 시 라인비교 상태 제거 */
     fun removeIndicator(indicatorId: Int) {
         _selectedIndicators.value = _selectedIndicators.value.filterNot { it.indicatorId == indicatorId }
         _linesByIndicator.value = _linesByIndicator.value - indicatorId
@@ -175,26 +177,25 @@ class FilterViewModel : ViewModel() {
         _compareByIndicator.value = _compareByIndicator.value - indicatorId
     }
 
-    // ── 라인 비교 토글
     fun toggleLineCompare(indicatorId: Int, enabled: Boolean) {
         val cur = _compareByIndicator.value[indicatorId] ?: LineCompareState()
         _compareByIndicator.value = _compareByIndicator.value + (indicatorId to cur.copy(enabled = enabled))
-        // 처음 켤 때 행이 없으면 1행 추가
         if (enabled && cur.rows.isEmpty()) addCompareRow(indicatorId)
     }
 
-    // 행 추가/삭제/업데이트
     fun addCompareRow(indicatorId: Int) {
         val cur = _compareByIndicator.value[indicatorId] ?: LineCompareState()
         val nextId = (cur.rows.maxOfOrNull { it.id } ?: 0) + 1
-        _compareByIndicator.value = _compareByIndicator.value + (indicatorId to
-                cur.copy(rows = cur.rows + LineComparison(id = nextId)))
+        _compareByIndicator.value = _compareByIndicator.value + (
+                indicatorId to cur.copy(rows = cur.rows + LineComparison(id = nextId))
+                )
     }
 
     fun removeCompareRow(indicatorId: Int, rowId: Int) {
         val cur = _compareByIndicator.value[indicatorId] ?: return
-        _compareByIndicator.value = _compareByIndicator.value + (indicatorId to
-                cur.copy(rows = cur.rows.filterNot { it.id == rowId }))
+        _compareByIndicator.value = _compareByIndicator.value + (
+                indicatorId to cur.copy(rows = cur.rows.filterNot { it.id == rowId })
+                )
     }
 
     fun updateCompareRow(
@@ -215,11 +216,129 @@ class FilterViewModel : ViewModel() {
         _compareByIndicator.value = _compareByIndicator.value + (indicatorId to cur.copy(rows = newRows))
     }
 
-    // 적용 버튼 눌렀을 때 (서버에 보내거나 상위로 전달)
-    fun applyLineCompare(indicatorId: Int) {
-        val state = _compareByIndicator.value[indicatorId] ?: return
-        // TODO: 여기서 검증 + 서버/상위로 전달
-        // 예: println(state)
+    // ── 지표 값/비교 칩 상태 ─────────────────────────────────────────────
+    private val _indicatorSelections =
+        MutableStateFlow<Map<Pair<Int, Int>, IndicatorLineSelection>>(emptyMap())
+    val indicatorSelections: StateFlow<Map<Pair<Int, Int>, IndicatorLineSelection>> = _indicatorSelections
+
+    fun applyIndicatorRange(
+        indicatorId: Int,
+        indicatorName: String,
+        lineId: Int,
+        lineName: String,
+        min: Int?,
+        max: Int?
+    ) {
+        val key = indicatorId to lineId
+        _indicatorSelections.value = _indicatorSelections.value + (
+                key to IndicatorLineSelection(indicatorId, indicatorName, lineId, lineName, min, max)
+                )
     }
 
+    fun removeIndicatorRange(indicatorId: Int, lineId: Int) {
+        val key = indicatorId to lineId
+        _indicatorSelections.value = _indicatorSelections.value - key
+    }
+
+    private val _compareSelections = MutableStateFlow<Map<Int, List<CompareSelection>>>(emptyMap())
+    val compareSelections: StateFlow<Map<Int, List<CompareSelection>>> = _compareSelections
+
+    /** "라인 비교 > 적용" 버튼 눌렀을 때: 현재 상태를 칩으로 저장 */
+    fun applyLineCompare(indicatorId: Int) {
+        val state = _compareByIndicator.value[indicatorId] ?: return
+        if (!state.enabled) {
+            _compareSelections.value = _compareSelections.value - indicatorId
+            return
+        }
+
+        val indicatorName = _selectedIndicators.value
+            .firstOrNull { it.indicatorId == indicatorId }?.indicatorName ?: "지표"
+        val lineNameMap = _linesByIndicator.value[indicatorId]
+            ?.associateBy({ it.indicatorLineId }, { it.indicatorLineName })
+            .orEmpty()
+
+        val rows = state.rows.filter { it.leftLineId != null && it.rightLineId != null && it.op != null }
+        val chips = rows.map { row ->
+            CompareSelection(
+                indicatorId = indicatorId,
+                indicatorName = indicatorName,
+                rowId = row.id,
+                leftLineId = row.leftLineId!!,
+                leftLineName = lineNameMap[row.leftLineId] ?: "라인${row.leftLineId}",
+                op = row.op!!,
+                rightLineId = row.rightLineId!!,
+                rightLineName = lineNameMap[row.rightLineId] ?: "라인${row.rightLineId}"
+            )
+        }
+        _compareSelections.value = _compareSelections.value + (indicatorId to chips)
+    }
+
+    fun removeCompareSelection(indicatorId: Int, rowId: Int) {
+        val cur = _compareSelections.value[indicatorId].orEmpty()
+        val next = cur.filterNot { it.rowId == rowId }
+        _compareSelections.value =
+            if (next.isEmpty()) _compareSelections.value - indicatorId
+            else _compareSelections.value + (indicatorId to next)
+
+        val state = _compareByIndicator.value[indicatorId] ?: return
+        _compareByIndicator.value = _compareByIndicator.value + (
+                indicatorId to state.copy(rows = state.rows.filterNot { it.id == rowId })
+                )
+    }
+
+}
+
+private fun CompareOp.toServerOp(): String = when (this) {
+    CompareOp.GREATER_THAN -> "GREATER_THAN"
+    CompareOp.GREATER_THAN_OR_EQUAL -> "GREATER_THAN_OR_EQUAL"
+    CompareOp.EQUAL -> "EQUAL"
+    CompareOp.LESS_THAN_OR_EQUAL -> "LESS_THAN_OR_EQUAL"
+    CompareOp.LESS_THAN -> "LESS_THAN"
+}
+
+/** 지표 한 개(indicatorId)의 LineCompareState -> IndicatorFilter */
+private fun FilterViewModel.buildIndicatorFilterForCompareIndicator(
+    indicatorId: Int,
+    state: LineCompareState
+): IndicatorFilter? {
+    if (!state.enabled) return null
+
+    val validRows = state.rows.filter { it.leftLineId != null && it.rightLineId != null && it.op != null }
+    if (validRows.isEmpty()) return null
+
+    val lineFilters = validRows.map { row ->
+        IndicatorLineFilter(
+            filterType = "COMPARE_INDICATOR",
+            indicatorLineIdA = row.leftLineId?.toLong(),
+            indicatorLineIdB = row.rightLineId?.toLong(),
+            operator = row.op!!.toServerOp(),
+            threshold = null
+        )
+    }
+    return IndicatorFilter(
+        indicatorId = indicatorId.toLong(),
+        indicatorLineFilterList = lineFilters
+    )
+}
+
+/** ViewModel 상태 -> FilterRequest */
+private fun FilterViewModel.buildFilterRequest(
+    chartFiltersFromUi: List<ChartFilterUi> = emptyList()
+): FilterRequest {
+    val sectorIds = selectedIds.value.toList()
+
+    val chartFilterList = chartSelections.value.values.map {
+        ChartFilter(priceType = it.type.api, priceMin = it.min, priceMax = it.max)
+    }
+
+    val indicatorFilters =
+        compareByIndicator.value.entries.mapNotNull { (indicatorId, state) ->
+            buildIndicatorFilterForCompareIndicator(indicatorId, state)
+        }
+
+    return FilterRequest(
+        sectorIds = sectorIds,
+        chartFilterList = chartFilterList,
+        indicatorFilterList = indicatorFilters
+    )
 }

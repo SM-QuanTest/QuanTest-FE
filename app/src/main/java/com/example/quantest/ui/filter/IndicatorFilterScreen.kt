@@ -29,7 +29,7 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun IndicatorFilterScreen(
-    viewModel: FilterViewModel = viewModel(),
+    viewModel: FilterViewModel,
     onAddIndicatorClick: () -> Unit,
     selectedIndicatorFlow: StateFlow<Indicator?>?
 ) {
@@ -175,7 +175,7 @@ fun IndicatorFilterScreen(
 
                             Text(
                                 text = " - ",
-                                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.padding(horizontal = 8.dp)
                             )
 
@@ -191,7 +191,16 @@ fun IndicatorFilterScreen(
 
                             QuanTestOutlinedButton(
                                 onClick = {
-                                    // TODO: minText, maxText 값 ViewModel로 전달해서 상태 저장
+                                    val min = minText.toIntOrNull()
+                                    val max = maxText.toIntOrNull()
+                                    viewModel.applyIndicatorRange(
+                                        indicator.indicatorId,
+                                        indicator.indicatorName,
+                                        line.indicatorLineId,
+                                        line.indicatorLineName,
+                                        min,
+                                        max
+                                    )
                                 },
                                 text = "적용"
                             )
@@ -204,7 +213,7 @@ fun IndicatorFilterScreen(
             CompareSection(
                 indicatorId = indicator.indicatorId,
                 lines = lines,
-                vm = viewModel
+                viewModel = viewModel
             )
 
             HorizontalDivider(Modifier.padding(vertical = 8.dp))
@@ -229,9 +238,9 @@ fun IndicatorFilterScreen(
 private fun CompareSection(
     indicatorId: Int,
     lines: List<IndicatorLine>,
-    vm: FilterViewModel
+    viewModel: FilterViewModel
 ) {
-    val compareMap by vm.compareByIndicator.collectAsState()
+    val compareMap by viewModel.compareByIndicator.collectAsState()
     val state = compareMap[indicatorId] ?: LineCompareState()
 
     // 항상 보이게
@@ -240,12 +249,12 @@ private fun CompareSection(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable { vm.toggleLineCompare(indicatorId, !state.enabled) }
+                .clickable { viewModel.toggleLineCompare(indicatorId, !state.enabled) }
                 .padding(vertical = 6.dp)
         ) {
             Checkbox(
                 checked = state.enabled,
-                onCheckedChange = { vm.toggleLineCompare(indicatorId, it) },
+                onCheckedChange = { viewModel.toggleLineCompare(indicatorId, it) },
                 colors = CheckboxDefaults.colors(
                     checkedColor = Navy,
                     uncheckedColor = MaterialTheme.colorScheme.onSurface
@@ -261,10 +270,10 @@ private fun CompareSection(
                 LineCompareRow(
                     lines = lines,
                     value = row,
-                    onChangeLeft = { vm.updateCompareRow(indicatorId, row.id, left = it) },
-                    onChangeOp = { vm.updateCompareRow(indicatorId, row.id, op = it) },
-                    onChangeRight = { vm.updateCompareRow(indicatorId, row.id, right = it) },
-                    onRemove = { vm.removeCompareRow(indicatorId, row.id) }
+                    onChangeLeft = { viewModel.updateCompareRow(indicatorId, row.id, left = it) },
+                    onChangeOp = { viewModel.updateCompareRow(indicatorId, row.id, op = it) },
+                    onChangeRight = { viewModel.updateCompareRow(indicatorId, row.id, right = it) },
+                    onRemove = { viewModel.removeCompareRow(indicatorId, row.id) }
                 )
                 Spacer(Modifier.height(8.dp))
             }
@@ -273,10 +282,10 @@ private fun CompareSection(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                OutlinedButton(onClick = { vm.addCompareRow(indicatorId) }) {
+                OutlinedButton(onClick = { viewModel.addCompareRow(indicatorId) }) {
                     Text("라인 비교 추가")
                 }
-                Button(onClick = { vm.applyLineCompare(indicatorId) }) {
+                Button(onClick = { viewModel.applyLineCompare(indicatorId) }) {
                     Text("적용")
                 }
             }
