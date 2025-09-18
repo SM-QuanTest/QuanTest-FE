@@ -72,7 +72,7 @@ fun QuanTestApp() {
                 val filterViewModel: FilterViewModel = viewModel(parentEntry)
 
                 FilterResultScreen(
-                    viewModel = filterViewModel,              // ✅ 같은 VM 전달
+                    viewModel = filterViewModel,              // 같은 VM 전달
                     onBackClick = { navController.popBackStack() },
                     onStockClick = { stockId ->
                         navController.navigate(NavRoute.StockDetail.buildRoute(stockId.toInt()))
