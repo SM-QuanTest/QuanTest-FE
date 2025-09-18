@@ -3,6 +3,7 @@ package com.example.quantest.navigation
 sealed class NavRoute(val route: String) {
     data object Home: NavRoute("home")
     data object Filter: NavRoute("filter")
+    data object FilterResult : NavRoute("filterResult")
     data object Pattern: NavRoute("pattern")
     data object Menu: NavRoute("menu")
     data object SearchIndicator: NavRoute("searchIndicator")

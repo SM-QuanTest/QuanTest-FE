@@ -64,6 +64,7 @@ fun FilterScreen(
     viewModel: FilterViewModel = viewModel(),
     onSearchClick: () -> Unit,
     onOpenIndicatorSearch: () -> Unit,
+    onNavigateToResult: () -> Unit,
     indicatorResultFlow: StateFlow<Indicator?>? = null
 ) {
     var selectedTab by rememberSaveable { mutableStateOf(FilterTab.DATE) }
@@ -96,10 +97,8 @@ fun FilterScreen(
             ) {
                 Button(
                     onClick = {
-                        viewModel.search(
-                            date = dateYmd,
-                            chartFiltersFromUi = emptyList() // ChartFilterUi 쓰면 여기 전달
-                        )
+                        viewModel.search( date = dateYmd )
+                        onNavigateToResult()
                     },
                     modifier = Modifier
                         .fillMaxWidth()

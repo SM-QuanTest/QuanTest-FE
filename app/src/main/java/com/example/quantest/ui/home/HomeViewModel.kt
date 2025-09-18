@@ -78,7 +78,7 @@ class HomeViewModel : ViewModel() {
             name = stockName,
             imageUrl = "", // 없으면 빈 문자열
             price = chartClose,
-            change = "${if (chartChangePercentage >= 0) "+" else ""}${chartChangePercentage}%",
+            change = "${if (chartChangePercentage > 0) "+" else ""}${chartChangePercentage}%",
             direction = direction
         )
     }

@@ -4,7 +4,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
@@ -14,6 +16,8 @@ import androidx.navigation.navArgument
 import com.example.quantest.data.model.Indicator
 import com.example.quantest.ui.component.QuanTestBottomBar
 import com.example.quantest.ui.filter.FilterScreen
+import com.example.quantest.ui.filter.FilterViewModel
+import com.example.quantest.ui.filter.FilterResultScreen
 import com.example.quantest.ui.home.HomeScreen
 import com.example.quantest.ui.menu.MenuScreen
 import com.example.quantest.ui.pattern.PatternScreen
@@ -53,11 +57,29 @@ fun QuanTestApp() {
                     },
                     onOpenIndicatorSearch = {
                         navController.navigate(NavRoute.SearchIndicator.route) },
+                    onNavigateToResult = { navController.navigate(NavRoute.FilterResult.route) },
                     indicatorResultFlow = navController.currentBackStackEntry
                         ?.savedStateHandle
                         ?.getStateFlow<Indicator?>(key = "indicator_result", initialValue = null)
                 )
             }
+
+            composable(route = NavRoute.FilterResult.route) { backStackEntry ->
+                // Filter 라우트의 BackStackEntry를 parent로 가져와 같은 VM 사용
+                val parentEntry = remember(backStackEntry) {
+                    navController.getBackStackEntry(NavRoute.Filter.route)
+                }
+                val filterViewModel: FilterViewModel = viewModel(parentEntry)
+
+                FilterResultScreen(
+                    viewModel = filterViewModel,              // ✅ 같은 VM 전달
+                    onBackClick = { navController.popBackStack() },
+                    onStockClick = { stockId ->
+                        navController.navigate(NavRoute.StockDetail.buildRoute(stockId.toInt()))
+                    }
+                )
+            }
+
 
             composable(route = NavRoute.Pattern.route) {
                 PatternScreen(
