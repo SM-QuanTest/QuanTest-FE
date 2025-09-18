@@ -1,5 +1,6 @@
 package com.example.quantest.ui.filter
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.quantest.data.api.RetrofitClient
@@ -286,6 +287,46 @@ class FilterViewModel : ViewModel() {
                 )
     }
 
+    // ── 검색 ─────────────────────────────────────────────────────────────
+    private val _results = MutableStateFlow<List<StockResponse>>(emptyList())
+    val results: StateFlow<List<StockResponse>> = _results
+
+    fun search(
+        date: String,
+        chartFiltersFromUi: List<ChartFilterUi> = emptyList()
+    ) {
+        viewModelScope.launch {
+            _loading.value = true
+            _error.value = null
+
+            Log.d("FilterViewModel", "🔍 검색 시작 date=$date")   // ① 호출 확인
+            try {
+                val req = buildFilterRequest(chartFiltersFromUi)
+                if (req.sectorIds.isEmpty() &&
+                    req.chartFilterList.isEmpty() &&
+                    req.indicatorFilterList.isEmpty()
+                ) {
+                    _results.value = emptyList()
+                    _loading.value = false
+                    return@launch
+                }
+                val res = RetrofitClient.stockApi.searchStocks(date, req)
+
+                Log.d(
+                    "FilterViewModel",
+                    "✅ 응답 success=${res.success}, message=${res.message}, dataCount=${res.data.size}"
+                ) // ③ 응답 확인
+
+                if (res.success) _results.value = res.data
+                else _error.value = res.message.ifBlank { "검색 실패" }
+            } catch (t: Throwable) {
+                Log.e("FilterViewModel", "❌ 검색 중 오류 발생", t) // ④ 예외 확인
+                _error.value = t.message ?: "네트워크 오류"
+            } finally {
+                _loading.value = false
+            }
+        }
+    }
 }
 
 private fun CompareOp.toServerOp(): String = when (this) {

@@ -2,6 +2,7 @@ package com.example.quantest.data.api
 
 import com.example.quantest.data.model.BaseResponse
 import com.example.quantest.data.model.ChartData
+import com.example.quantest.data.model.FilterRequest
 import com.example.quantest.data.model.Indicator
 import com.example.quantest.data.model.IndicatorConfig
 import com.example.quantest.data.model.IndicatorLine
@@ -10,8 +11,11 @@ import com.example.quantest.data.model.Pattern
 import com.example.quantest.data.model.PatternStockItem
 import com.example.quantest.data.model.Sector
 import com.example.quantest.data.model.StockRankingData
+import com.example.quantest.data.model.StockResponse
 import retrofit2.Response
+import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Query
 
@@ -66,4 +70,11 @@ interface StockApi {
     suspend fun getIndicatorConfigs(
         @Path("indicatorId") indicatorId: Int
     ): BaseResponse<List<IndicatorConfig>>
+
+    // 검색(필터링)
+    @POST("/search")
+    suspend fun searchStocks(
+        @Query("date") date: String,
+        @Body body: FilterRequest
+    ): BaseResponse<List<StockResponse>>
 }

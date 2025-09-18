@@ -25,6 +25,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.res.painterResource
 import com.example.quantest.R
@@ -34,6 +35,22 @@ import com.example.quantest.data.model.CompareOp
 import com.example.quantest.data.model.Indicator
 import com.example.quantest.ui.theme.Navy
 import kotlinx.coroutines.flow.StateFlow
+import java.text.SimpleDateFormat
+import java.util.*
+
+private val tzSeoul: TimeZone = TimeZone.getTimeZone("Asia/Seoul")
+private val sdfYmd: SimpleDateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.KOREA).apply {
+    timeZone = tzSeoul
+}
+
+fun todayYmd(): String {
+    val cal = Calendar.getInstance(tzSeoul) // 서울 기준 now
+    return sdfYmd.format(cal.time)
+}
+
+fun Long.toYmd(): String { // epoch millis → "yyyy-MM-dd"
+    return sdfYmd.format(Date(this))
+}
 
 enum class FilterTab(val title: String) {
     DATE("날짜"),
@@ -47,14 +64,30 @@ fun FilterScreen(
     viewModel: FilterViewModel = viewModel(),
     onSearchClick: () -> Unit,
     onOpenIndicatorSearch: () -> Unit,
-    onApplyClick: () -> Unit,
     indicatorResultFlow: StateFlow<Indicator?>? = null
 ) {
     var selectedTab by rememberSaveable { mutableStateOf(FilterTab.DATE) }
 
+    var dateYmd by rememberSaveable { mutableStateOf(todayYmd()) }
+
+    // 최초 업종 로드 (한 번만)
+    LaunchedEffect(Unit) { viewModel.loadSectors() }
+
+    // 에러/결과 상태 수집
+    val error by viewModel.error.collectAsState()
+    val loading by viewModel.loading.collectAsState()
+    val results by viewModel.results.collectAsState()
+
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    // 에러 스낵바
+    LaunchedEffect(error) {
+        if (error != null) snackbarHostState.showSnackbar(error!!)
+    }
+
     Scaffold(
         topBar = { QuanTestTopBar(onSearchClick = onSearchClick) },
-
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         // 하단 고정 검색하기 버튼
         bottomBar = {
             Surface(
@@ -62,7 +95,12 @@ fun FilterScreen(
                 shadowElevation = 0.dp
             ) {
                 Button(
-                    onClick = onApplyClick,
+                    onClick = {
+                        viewModel.search(
+                            date = dateYmd,
+                            chartFiltersFromUi = emptyList() // ChartFilterUi 쓰면 여기 전달
+                        )
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
                         .navigationBarsPadding() // 시스템 하단바(제스처 바) 위로 띄우기
@@ -73,7 +111,7 @@ fun FilterScreen(
                         contentColor = Color.White
                     )
                 ) {
-                    Text(text = "검색하기", fontSize = 18.sp)
+                    Text(text = if (loading) "검색 중…" else "검색하기", fontSize = 18.sp)
                 }
             }
         }
@@ -96,7 +134,11 @@ fun FilterScreen(
 
             // 탭별 화면
             when (selectedTab) {
-                FilterTab.DATE -> DateFilterScreen()
+                FilterTab.DATE -> DateFilterScreen(
+                    onDateSelected = { millis ->
+                        dateYmd = millis.toYmd()
+                    }
+                )
                 FilterTab.INDUSTRY -> IndustryFilterScreen(viewModel)
                 FilterTab.CHART -> ChartFilterScreen(viewModel)
                 FilterTab.INDICATOR -> IndicatorFilterScreen(
