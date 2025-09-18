@@ -4,9 +4,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.quantest.data.api.RetrofitClient
 import com.example.quantest.data.api.StockApi
+import com.example.quantest.data.model.CompareOp
 import com.example.quantest.data.model.Indicator
 import com.example.quantest.data.model.IndicatorConfig
 import com.example.quantest.data.model.IndicatorLine
+import com.example.quantest.data.model.LineCompareState
+import com.example.quantest.data.model.LineComparison
 import com.example.quantest.data.model.Sector
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -110,20 +113,6 @@ class FilterViewModel : ViewModel() {
     private val _selectedLineIdsByIndicator = MutableStateFlow<Map<Int, Set<Int>>>(emptyMap())
     val selectedLineIdsByIndicator: StateFlow<Map<Int, Set<Int>>> = _selectedLineIdsByIndicator
 
-    // 지표 추가 (중복 방지) + 라인 로딩
-    fun addIndicator(ind: Indicator) {
-        if (_selectedIndicators.value.any { it.indicatorId == ind.indicatorId }) return
-        _selectedIndicators.value = _selectedIndicators.value + ind
-        loadIndicatorLines(ind.indicatorId)
-    }
-
-    // 지표 제거
-    fun removeIndicator(indicatorId: Int) {
-        _selectedIndicators.value = _selectedIndicators.value.filterNot { it.indicatorId == indicatorId }
-        _linesByIndicator.value = _linesByIndicator.value - indicatorId
-        _selectedLineIdsByIndicator.value = _selectedLineIdsByIndicator.value - indicatorId
-    }
-
     // 라인 로딩
     fun loadIndicatorLines(indicatorId: Int) = viewModelScope.launch {
         runCatching { RetrofitClient.stockApi.getIndicatorLines(indicatorId) }
@@ -162,6 +151,75 @@ class FilterViewModel : ViewModel() {
                     _configs.value = emptyList()
                 }
         }
+    }
+
+    // 지표별 라인비교 상태
+    private val _compareByIndicator = MutableStateFlow<Map<Int, LineCompareState>>(emptyMap())
+    val compareByIndicator: StateFlow<Map<Int, LineCompareState>> = _compareByIndicator
+
+    //** 지표 추가 시 라인비교 상태도 초기화 */
+    fun addIndicator(ind: Indicator) {
+        if (_selectedIndicators.value.any { it.indicatorId == ind.indicatorId }) return
+        _selectedIndicators.value = _selectedIndicators.value + ind
+        loadIndicatorLines(ind.indicatorId)
+
+        _compareByIndicator.value =
+            _compareByIndicator.value + (ind.indicatorId to LineCompareState())
+    }
+
+    //** 지표 제거 시 라인비교 상태 제거 */
+    fun removeIndicator(indicatorId: Int) {
+        _selectedIndicators.value = _selectedIndicators.value.filterNot { it.indicatorId == indicatorId }
+        _linesByIndicator.value = _linesByIndicator.value - indicatorId
+        _selectedLineIdsByIndicator.value = _selectedLineIdsByIndicator.value - indicatorId
+        _compareByIndicator.value = _compareByIndicator.value - indicatorId
+    }
+
+    // ── 라인 비교 토글
+    fun toggleLineCompare(indicatorId: Int, enabled: Boolean) {
+        val cur = _compareByIndicator.value[indicatorId] ?: LineCompareState()
+        _compareByIndicator.value = _compareByIndicator.value + (indicatorId to cur.copy(enabled = enabled))
+        // 처음 켤 때 행이 없으면 1행 추가
+        if (enabled && cur.rows.isEmpty()) addCompareRow(indicatorId)
+    }
+
+    // 행 추가/삭제/업데이트
+    fun addCompareRow(indicatorId: Int) {
+        val cur = _compareByIndicator.value[indicatorId] ?: LineCompareState()
+        val nextId = (cur.rows.maxOfOrNull { it.id } ?: 0) + 1
+        _compareByIndicator.value = _compareByIndicator.value + (indicatorId to
+                cur.copy(rows = cur.rows + LineComparison(id = nextId)))
+    }
+
+    fun removeCompareRow(indicatorId: Int, rowId: Int) {
+        val cur = _compareByIndicator.value[indicatorId] ?: return
+        _compareByIndicator.value = _compareByIndicator.value + (indicatorId to
+                cur.copy(rows = cur.rows.filterNot { it.id == rowId }))
+    }
+
+    fun updateCompareRow(
+        indicatorId: Int,
+        rowId: Int,
+        left: Int? = null,
+        op: CompareOp? = null,
+        right: Int? = null
+    ) {
+        val cur = _compareByIndicator.value[indicatorId] ?: return
+        val newRows = cur.rows.map {
+            if (it.id != rowId) it else it.copy(
+                leftLineId = left ?: it.leftLineId,
+                op = op ?: it.op,
+                rightLineId = right ?: it.rightLineId
+            )
+        }
+        _compareByIndicator.value = _compareByIndicator.value + (indicatorId to cur.copy(rows = newRows))
+    }
+
+    // 적용 버튼 눌렀을 때 (서버에 보내거나 상위로 전달)
+    fun applyLineCompare(indicatorId: Int) {
+        val state = _compareByIndicator.value[indicatorId] ?: return
+        // TODO: 여기서 검증 + 서버/상위로 전달
+        // 예: println(state)
     }
 
 }

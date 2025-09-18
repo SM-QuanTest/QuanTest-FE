@@ -1,6 +1,5 @@
 package com.example.quantest.ui.filter
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -13,6 +12,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.quantest.ui.theme.QuanTestTheme
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import com.example.quantest.ui.component.QuanTestOutlinedButton
 
@@ -32,7 +33,13 @@ private fun Preview_ChartFilterScreen_Light() {
 
 @Composable
 fun ChartFilterScreen() {
-    Column(Modifier.fillMaxSize()) {
+    val scrollState = rememberScrollState()
+
+    Column(
+        modifier = Modifier
+        .fillMaxSize()
+        .verticalScroll(scrollState)
+    ) {
         ChartRangeRow(label = "시가")
         HorizontalDivider()
         ChartRangeRow(label = "종가")

@@ -52,6 +52,7 @@ fun QuanTestApp() {
                     },
                     onOpenIndicatorSearch = {
                         navController.navigate(NavRoute.Search.route) },
+                    onApplyClick = {}, // TODO
                     indicatorResultFlow = navController.currentBackStackEntry
                         ?.savedStateHandle
                         ?.getStateFlow<Indicator?>(key = "indicator_result", initialValue = null)

@@ -20,12 +20,16 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.quantest.ui.component.QuanTestTabRow
 import com.example.quantest.ui.component.QuanTestTopBar
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.res.painterResource
 import com.example.quantest.R
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.sp
 import com.example.quantest.data.model.Indicator
+import com.example.quantest.ui.theme.Navy
 import kotlinx.coroutines.flow.StateFlow
 
 enum class FilterTab(val title: String) {
@@ -40,17 +44,42 @@ fun FilterScreen(
     viewModel: FilterViewModel = viewModel(),
     onSearchClick: () -> Unit,
     onOpenIndicatorSearch: () -> Unit,
+    onApplyClick: () -> Unit,
     indicatorResultFlow: StateFlow<Indicator?>? = null
 ) {
     var selectedTab by rememberSaveable { mutableStateOf(FilterTab.DATE) }
 
     Scaffold(
-        topBar = { QuanTestTopBar(onSearchClick = onSearchClick) }
-    ){ innerPadding ->
-        Column(modifier = Modifier
-            .padding(innerPadding)
-            .fillMaxSize()) {
+        topBar = { QuanTestTopBar(onSearchClick = onSearchClick) },
 
+        // 하단 고정 적용하기 버튼
+        bottomBar = {
+            Surface(
+                tonalElevation = 0.dp,
+                shadowElevation = 0.dp
+            ) {
+                Button(
+                    onClick = onApplyClick,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .navigationBarsPadding() // 시스템 하단바(제스처 바) 위로 띄우기
+                        .padding(horizontal = 20.dp, vertical = 12.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Navy,
+                        contentColor = Color.White
+                    )
+                ) {
+                    Text(text = "적용하기", fontSize = 18.sp)
+                }
+            }
+        }
+    ) { innerPadding ->
+        Column(
+            modifier = Modifier
+                .padding(innerPadding)
+                .fillMaxSize()
+        ) {
             // 상단 탭
             QuanTestTabRow(
                 tabs = FilterTab.values(),
@@ -73,10 +102,10 @@ fun FilterScreen(
                     selectedIndicatorFlow = indicatorResultFlow
                 )
             }
-
         }
     }
 }
+
 
 @Composable
 private fun SelectedChipsBar(viewModel: FilterViewModel) {
