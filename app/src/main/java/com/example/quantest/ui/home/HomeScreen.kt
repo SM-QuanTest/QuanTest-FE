@@ -1,5 +1,6 @@
 package com.example.quantest.ui.home
 
+import android.R.attr.data
 import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -22,6 +23,7 @@ import com.example.quantest.ui.theme.Red
 import com.example.quantest.ui.component.QuanTestTopBar
 import com.example.quantest.R
 import com.example.quantest.ui.component.QuanTestTabRow
+import com.example.quantest.util.formatChartDate
 import com.example.quantest.util.formatPrice
 
 enum class HomeTab(val title: String, val category: String) {
@@ -86,7 +88,7 @@ fun RankingTitle(chartDate: String?) {
         if (!chartDate.isNullOrBlank()) {
             Spacer(modifier = Modifier.width(8.dp))
             Text(
-                text = "${chartDate} 기준",
+                text = "${formatChartDate(chartDate)} 기준",
                 fontSize = 13.sp,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
