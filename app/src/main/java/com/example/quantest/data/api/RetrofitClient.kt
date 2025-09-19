@@ -8,7 +8,7 @@ import okhttp3.Interceptor
 
 
 object RetrofitClient {
-    const val BASE_URL = "https://6489eed0b885.ngrok-free.app/"
+    const val BASE_URL = "https://a1b7ba62e1da.ngrok-free.app/"
     // URL 로깅용 Interceptor
     private val loggingInterceptor = Interceptor { chain ->
         val request = chain.request()
