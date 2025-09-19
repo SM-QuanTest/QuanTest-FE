@@ -17,7 +17,6 @@ import androidx.compose.material3.TooltipDefaults.rememberPlainTooltipPositionPr
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.res.painterResource
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.quantest.data.model.CompareOp
 import com.example.quantest.data.model.Indicator
 import com.example.quantest.data.model.IndicatorLine
@@ -28,7 +27,7 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun IndicatorFilterScreen(
+fun IndicatorFilterTab(
     viewModel: FilterViewModel,
     onAddIndicatorClick: () -> Unit,
     selectedIndicatorFlow: StateFlow<Indicator?>?

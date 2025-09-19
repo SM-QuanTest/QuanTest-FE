@@ -58,7 +58,7 @@ class HomeViewModel : ViewModel() {
         }
 
         return StockItem(
-            id = stockId.toInt(),
+            id = stockId,
             rank = rank + 1,
             name = stockName,
             imageUrl = "", // 없으면 빈 문자열

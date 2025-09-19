@@ -19,22 +19,32 @@ class StockDetailViewModel : ViewModel() {
     private val _latestChartData = mutableStateOf<LatestChartData?>(null)
     val latestChartData: LatestChartData? get() = _latestChartData.value
 
-    fun fetchChartData(stockId: Int) {
-        val calendar = Calendar.getInstance()
-        // TODO: 실제 날짜로 변경
-        val endDate = getTodayFormatted()
-        calendar.add(Calendar.DAY_OF_YEAR, -30)
-        val startDate = "2024-01-01"
+    private var nextCursor: String? = null
+    private var hasNext: Boolean = true
+    private var isLoading = false
 
-        Log.d("ChartFetch", "start=$startDate, end=$endDate")
+    fun fetchChartData(stockId: Long) {
+        // 초기화
+        nextCursor = null
+        hasNext = true
 
         viewModelScope.launch {
+            isLoading = true
             try {
-                val response = RetrofitClient.stockApi.getChartData(stockId, startDate, endDate)
+                val response = RetrofitClient.stockApi.getChartPage(
+                    stockId = stockId,
+                    cursorDate = null,
+                    limit = null
+                )
                 Log.d("ChartFetch", "response: ${response.code()}, body: ${response.body()}")
 
                 if (response.isSuccessful && response.body()?.success == true) {
-                    _chartData.value = response.body()?.data ?: emptyList<ChartData>()
+                    val page = response.body()!!.data!!
+
+                    _chartData.value = page.contents.sortedBy { it.chartDate }
+                    nextCursor = page.nextCursor
+                    hasNext = page.hasNext
+
                     Log.d("ChartFetch", "Fetched ${chartData.size} items")
                 } else {
                     Log.w("ChartFetch", "API error: ${response.message()}")
@@ -44,11 +54,43 @@ class StockDetailViewModel : ViewModel() {
             }
         }
 
-        // 최신 일봉 데이터 호출
         fetchLatestChartData(stockId)
     }
 
-    private fun fetchLatestChartData(stockId: Int) {
+    fun loadMore(stockId: Long) {
+        if (!hasNext || isLoading) return
+        val cursor = nextCursor ?: return
+
+        viewModelScope.launch {
+            isLoading = true
+            try {
+                val response = RetrofitClient.stockApi.getChartPage(
+                    stockId = stockId.toLong(),
+                    cursorDate = cursor,
+                    limit = null
+                )
+
+                if (response.isSuccessful && response.body()?.success == true) {
+                    val page = response.body()!!.data!!
+                    val merged = (_chartData.value + page.contents)
+                        .distinctBy { it.chartId }
+                        .sortedBy { it.chartDate } // 항상 시간 오름차순으로 고정
+
+                    _chartData.value = merged
+                    nextCursor = page.nextCursor
+                    hasNext = page.hasNext
+                } else {
+                    Log.w("ChartMore", "API ${response.code()} ${response.errorBody()?.string()}")
+                }
+            } catch (e: Exception) {
+                Log.e("ChartMore", "Exception: ${e.localizedMessage}", e)
+            } finally {
+                isLoading = false
+            }
+        }
+    }
+
+    private fun fetchLatestChartData(stockId: Long) {
         viewModelScope.launch {
             try {
                 val response = RetrofitClient.stockApi.getLatestChartData(stockId)

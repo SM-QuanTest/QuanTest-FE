@@ -1,6 +1,7 @@
 package com.example.quantest.data.api
 
 import com.example.quantest.data.model.BaseResponse
+import com.example.quantest.data.model.Page
 import com.example.quantest.data.model.ChartData
 import com.example.quantest.data.model.FilterRequest
 import com.example.quantest.data.model.Indicator
@@ -29,15 +30,17 @@ interface StockApi {
 
     // 종목 일봉 차트 조회
     @GET("/charts/{stockId}")
-    suspend fun getChartData(
-        @Path("stockId") stockId: Int,
-        @Query("startDate") startDate: String,
-        @Query("endDate") endDate: String
-    ): Response<BaseResponse<List<ChartData>>>
+    suspend fun getChartPage(
+        @Path("stockId") stockId: Long,
+        @Query("limit") limit: Int? = null,
+        @Query("cursor") cursorDate: String? = null
+    ): Response<BaseResponse<Page<ChartData>>>
 
     // 종목 일봉 차트 단건 조회
     @GET("/charts/{stockId}/latest")
-    suspend fun getLatestChartData(@Path("stockId") stockId: Int): Response<BaseResponse<LatestChartData>>
+    suspend fun getLatestChartData(
+        @Path("stockId") stockId: Long
+    ): Response<BaseResponse<LatestChartData>>
 
     // 패턴 다건 조회(상승/하락)
     @GET("/patterns")

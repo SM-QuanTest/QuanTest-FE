@@ -75,7 +75,7 @@ fun QuanTestApp() {
                     viewModel = filterViewModel,              // 같은 VM 전달
                     onBackClick = { navController.popBackStack() },
                     onStockClick = { stockId ->
-                        navController.navigate(NavRoute.StockDetail.buildRoute(stockId.toInt()))
+                        navController.navigate(NavRoute.StockDetail.buildRoute(stockId))
                     }
                 )
             }
@@ -144,9 +144,9 @@ fun QuanTestApp() {
 
             composable(
                 route = NavRoute.StockDetail.route,
-                arguments = listOf(navArgument("stockId") { type = NavType.IntType })
+                arguments = listOf(navArgument("stockId") { type = NavType.LongType })
             ) { backStackEntry ->
-                val stockId = backStackEntry.arguments?.getInt("stockId") ?: 0
+                val stockId = backStackEntry.arguments?.getLong("stockId") ?: 0
                 StockDetailScreen(
                     stockId = stockId,
                     onBackClick = { navController.popBackStack() },

@@ -1,7 +1,7 @@
 package com.example.quantest.model
 
 data class StockItem(
-    val id: Int,
+    val id: Long,
     val rank: Int?,
     val name: String,
     val imageUrl: String,

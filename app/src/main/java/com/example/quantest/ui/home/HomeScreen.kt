@@ -1,6 +1,5 @@
 package com.example.quantest.ui.home
 
-import android.R.attr.data
 import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -37,7 +36,7 @@ enum class HomeTab(val title: String, val category: String) {
 fun HomeScreen(
     viewModel: HomeViewModel = viewModel(),
     onSearchClick: () -> Unit,
-    onStockClick: (Int) -> Unit
+    onStockClick: (Long) -> Unit
 ) {
     var selectedTab by rememberSaveable { mutableStateOf(HomeTab.TURNOVER) }
 
@@ -97,7 +96,7 @@ fun RankingTitle(chartDate: String?) {
 }
 
 @Composable
-fun RankingList(items: List<StockItem>, onItemClick: (Int) -> Unit) {
+fun RankingList(items: List<StockItem>, onItemClick: (Long) -> Unit) {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -167,19 +166,19 @@ fun StockRankItem(item: StockItem, onClick: () -> Unit) {
                 painter = painterResource(id = R.drawable.ic_arrow_up),
                 contentDescription = "상승",
                 tint = Red,
-                modifier = Modifier.size(16.dp)
+                modifier = Modifier.size(20.dp)
             )
             ChangeDirection.DOWN -> Icon(
                 painter = painterResource(id = R.drawable.ic_arrow_down),
                 contentDescription = "하락",
                 tint = Blue,
-                modifier = Modifier.size(16.dp)
+                modifier = Modifier.size(20.dp)
             )
             ChangeDirection.FLAT -> Icon(
                 painter = painterResource(id = R.drawable.ic_flat),
                 contentDescription = "보합",
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.size(16.dp)
+                modifier = Modifier.size(20.dp)
             )
         }
     }

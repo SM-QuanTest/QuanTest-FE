@@ -14,6 +14,6 @@ sealed class NavRoute(val route: String) {
     data object SearchIndicator: NavRoute("searchIndicator")
     data object SearchStock: NavRoute("searchStock")
     data object StockDetail : NavRoute("stockDetail/{stockId}") {
-        fun buildRoute(stockId: Int) = "stockDetail/$stockId"
+        fun buildRoute(stockId: Long) = "stockDetail/$stockId"
     }
 }

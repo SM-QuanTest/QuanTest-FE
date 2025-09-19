@@ -76,19 +76,19 @@ fun StockListItem(
                 painter = painterResource(id = R.drawable.ic_arrow_up),
                 contentDescription = "상승",
                 tint = Red,
-                modifier = Modifier.size(16.dp)
+                modifier = Modifier.size(20.dp)
             )
             ChangeDirection.DOWN -> Icon(
                 painter = painterResource(id = R.drawable.ic_arrow_down),
                 contentDescription = "하락",
                 tint = Blue,
-                modifier = Modifier.size(16.dp)
+                modifier = Modifier.size(20.dp)
             )
             ChangeDirection.FLAT -> Icon(
                 painter = painterResource(id = R.drawable.ic_flat),
                 contentDescription = "보합",
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.size(16.dp)
+                modifier = Modifier.size(20.dp)
             )
         }
 
