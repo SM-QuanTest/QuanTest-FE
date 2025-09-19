@@ -24,7 +24,7 @@ import com.example.quantest.ui.pattern.PatternScreen
 import com.example.quantest.ui.search.SearchIndicatorScreen
 import com.example.quantest.ui.search.SearchStockScreen
 import com.example.quantest.ui.stockdetail.StockDetailScreen
-import com.example.quantest.ui.stocklist.StockListScreen
+import com.example.quantest.ui.patternresult.PatternResultScreen
 
 @Composable
 fun QuanTestApp() {
@@ -80,14 +80,36 @@ fun QuanTestApp() {
                 )
             }
 
-
             composable(route = NavRoute.Pattern.route) {
                 PatternScreen(
                     onSearchClick = {
                         navController.navigate(NavRoute.SearchStock.route)
                     },
-                    onPatternClick = { patternId ->
-                        navController.navigate(NavRoute.StockList.buildRoute(patternId))
+                    onPatternClick = { patternId, patternName ->
+                        navController.navigate(
+                            NavRoute.PatternResult.buildRoute(patternId, patternName)
+                        )
+                    }
+                )
+            }
+
+            composable(
+                route = NavRoute.PatternResult.route,
+                arguments = listOf(
+                    navArgument("patternId") { type = NavType.IntType },
+                    navArgument("patternName") { type = NavType.StringType }
+                )
+            ) { backStackEntry ->
+                val patternId = backStackEntry.arguments?.getInt("patternId") ?: 0
+                val patternName = backStackEntry.arguments
+                    ?.getString("patternName")
+                    ?: "패턴 결과"
+                PatternResultScreen(
+                    patternId = patternId,
+                    patternName = patternName,
+                    onBackClick = { navController.popBackStack() },
+                    onStockClick = { stockId ->
+                        navController.navigate("stockDetail/$stockId")
                     }
                 )
             }
@@ -133,19 +155,6 @@ fun QuanTestApp() {
                 )
             }
 
-            composable(
-                route = NavRoute.StockList.route,
-                arguments = listOf(navArgument("patternId") { type = NavType.IntType })
-            ) { backStackEntry ->
-                val patternId = backStackEntry.arguments?.getInt("patternId") ?: 0
-                StockListScreen(
-                    patternId = patternId,
-                    onBackClick = { navController.popBackStack() },
-                    onStockClick = { stockId ->
-                        navController.navigate("stockDetail/$stockId") // TODO
-                    }
-                )
-            }
         }
     }
 }

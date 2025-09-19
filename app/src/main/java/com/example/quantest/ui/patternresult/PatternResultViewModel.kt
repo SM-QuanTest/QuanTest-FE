@@ -1,4 +1,4 @@
-package com.example.quantest.ui.stocklist
+package com.example.quantest.ui.patternresult
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class StockListViewModel() : ViewModel() {
+class PatternResultViewModel() : ViewModel() {
 
     private val _stocks = MutableStateFlow<List<PatternStockItem>>(emptyList())
     val stocks: StateFlow<List<PatternStockItem>> = _stocks

@@ -42,7 +42,7 @@ enum class PatternTab(val title: String, val direction: String) {
 fun PatternScreen(
     viewModel: PatternViewModel = viewModel(),
     onSearchClick: () -> Unit,
-    onPatternClick: (Int) -> Unit
+    onPatternClick: (Int, String) -> Unit
 ) {
     val selectedTabIndex by viewModel.selectedTabIndex.collectAsState()
     val selectedTab = PatternTab.values()[selectedTabIndex]
@@ -72,7 +72,7 @@ fun PatternScreen(
                 items(patternList) { pattern ->
                     PatternCard(
                         pattern = pattern,
-                        onClick = { onPatternClick(pattern.patternId) }
+                        onClick = { onPatternClick(pattern.patternId, pattern.patternName) }
                     )
                 }
             }

@@ -8,6 +8,7 @@ import com.example.quantest.data.api.RetrofitClient
 import com.example.quantest.data.model.StockResponse
 import com.example.quantest.model.ChangeDirection
 import com.example.quantest.model.StockItem
+import com.example.quantest.util.getTodayFormatted
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -20,22 +21,6 @@ class HomeViewModel : ViewModel() {
 
     private val _chartDate = mutableStateOf<String?>(null)
     val chartDate: String? get() = _chartDate.value
-
-
-    // 오늘 날짜를 yyyy-MM-dd 형식으로 반환
-    private fun getTodayFormatted(): String {
-        val today = Calendar.getInstance().time
-        val formatter = SimpleDateFormat("yyyy-MM-dd", Locale.KOREAN)
-        return formatter.format(today)
-    }
-
-    // 어제 날짜를 yyyy-MM-dd 형식으로 반환
-    private fun getYesterdayFormatted(): String {
-        val calendar = Calendar.getInstance()
-        calendar.add(Calendar.DATE, -1) // 하루 전으로 설정
-        val formatter = SimpleDateFormat("yyyy-MM-dd", Locale.KOREAN)
-        return formatter.format(calendar.time)
-    }
 
     fun loadStocks(category: String, date: String = getTodayFormatted()) {
     viewModelScope.launch {

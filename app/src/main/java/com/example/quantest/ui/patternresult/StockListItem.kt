@@ -1,4 +1,4 @@
-package com.example.quantest.ui.stocklist
+package com.example.quantest.ui.patternresult
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -42,16 +42,15 @@ fun StockListItem(
             .padding(horizontal = 16.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // 종목 이미지
-        AsyncImage(
-            model = "",
-            contentDescription = "${name} 로고",
-            modifier = Modifier
-                .size(36.dp)
-                .clip(RoundedCornerShape(18.dp)),
-            placeholder = painterResource(id = R.drawable.ic_placeholder),
-            error = painterResource(id = R.drawable.ic_placeholder)
-        )
+//        AsyncImage(
+//            model = "",
+//            contentDescription = "${name} 로고",
+//            modifier = Modifier
+//                .size(36.dp)
+//                .clip(RoundedCornerShape(18.dp)),
+//            placeholder = painterResource(id = R.drawable.ic_placeholder),
+//            error = painterResource(id = R.drawable.ic_placeholder)
+//        )
 
         Spacer(modifier = Modifier.width(12.dp))
 

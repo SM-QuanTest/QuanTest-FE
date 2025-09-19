@@ -7,10 +7,9 @@ import androidx.lifecycle.viewModelScope
 import com.example.quantest.data.model.ChartData
 import com.example.quantest.data.model.LatestChartData
 import com.example.quantest.data.api.RetrofitClient
+import com.example.quantest.util.getTodayFormatted
 import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
 import java.util.Calendar
-import java.util.Locale
 
 class StockDetailViewModel : ViewModel() {
 
@@ -21,13 +20,10 @@ class StockDetailViewModel : ViewModel() {
     val latestChartData: LatestChartData? get() = _latestChartData.value
 
     fun fetchChartData(stockId: Int) {
-        val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
         val calendar = Calendar.getInstance()
         // TODO: 실제 날짜로 변경
-        //val endDate = sdf.format(calendar.time)
-        val endDate = "2025-08-04"
+        val endDate = getTodayFormatted()
         calendar.add(Calendar.DAY_OF_YEAR, -30)
-        //val startDate = sdf.format(calendar.time)
         val startDate = "2024-01-01"
 
         Log.d("ChartFetch", "start=$startDate, end=$endDate")

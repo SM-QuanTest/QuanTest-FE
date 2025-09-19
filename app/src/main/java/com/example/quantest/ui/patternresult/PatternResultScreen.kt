@@ -1,4 +1,4 @@
-package com.example.quantest.ui.stocklist
+package com.example.quantest.ui.patternresult
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -7,7 +7,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.*
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.TabRow
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -15,17 +14,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.Modifier
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.AsyncImage
 import com.example.quantest.model.ChangeDirection
-import com.example.quantest.ui.theme.Blue
-import com.example.quantest.ui.theme.Red
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -35,11 +28,12 @@ import com.example.quantest.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun StockListScreen(
+fun PatternResultScreen(
     patternId: Int,
+    patternName: String,
     onBackClick: () -> Unit,
     onStockClick: (Long) -> Unit,
-    viewModel: StockListViewModel = viewModel()
+    viewModel: PatternResultViewModel = viewModel()
 ) {
     var selectedTab by remember { mutableStateOf(TabType.ALL) }
 
@@ -53,12 +47,12 @@ fun StockListScreen(
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                // 타이틀 중앙 정렬
                 title = {
                     Text(
-                        text = "임시 제목",
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold
+                        text = "${patternName} 패턴",
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 },
                 navigationIcon = {
@@ -127,41 +121,6 @@ fun List<PatternStockItem>.filterByTab(tab: TabType): List<PatternStockItem> = w
     TabType.HOLD -> filter { it.toChangeDirection() == ChangeDirection.FLAT }
 }
 
-// 탭 필터 기능
-
-enum class TabType {
-    ALL,   // 전체
-    UP,    // 상승
-    DOWN,  // 하락
-    HOLD   // 보합
-}
-
-// 탭 필터
-@Composable
-fun StockTabBar(
-    selectedTab: TabType,
-    onTabSelected: (TabType) -> Unit
-) {
-    val tabs = listOf(TabType.ALL, TabType.UP, TabType.DOWN, TabType.HOLD)
-    TabRow(selectedTabIndex = tabs.indexOf(selectedTab)) {
-        tabs.forEach { tab ->
-            Tab(
-                selected = selectedTab == tab,
-                onClick = { onTabSelected(tab) },
-                text = {
-                    Text(
-                        when (tab) {
-                            TabType.ALL -> "전체"
-                            TabType.UP -> "상승"
-                            TabType.DOWN -> "하락"
-                            TabType.HOLD -> "보합"
-                        }
-                    )
-                }
-            )
-        }
-    }
-}
 
 
 
