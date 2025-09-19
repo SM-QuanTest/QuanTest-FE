@@ -42,7 +42,7 @@ interface StockApi {
     // 패턴 다건 조회(상승/하락)
     @GET("/patterns")
     suspend fun getPatterns(
-        @Query("type") type: String? = null // "BULLISH" or "BEARISH"
+        @Query("direction") type: String? = null
     ): Response<BaseResponse<List<Pattern>>>
 
     // 패턴 탐지된 종목 다건 조회

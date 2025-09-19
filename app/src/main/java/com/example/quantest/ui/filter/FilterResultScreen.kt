@@ -8,13 +8,14 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.quantest.R
 import com.example.quantest.data.model.StockResponse
-import com.example.quantest.ui.stocklist.StockListItem
-import com.example.quantest.ui.stocklist.StockTabBar
-import com.example.quantest.ui.stocklist.TabType
+import com.example.quantest.ui.patternresult.StockListItem
+import com.example.quantest.ui.patternresult.StockTabBar
+import com.example.quantest.ui.patternresult.TabType
 import java.util.Locale
 import com.example.quantest.model.ChangeDirection
 
@@ -33,7 +34,14 @@ fun FilterResultScreen(
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text("검색 결과", fontSize = 16.sp) },
+                title = {
+                    Text(
+                        text = "검색 결과",
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
                         Icon(
