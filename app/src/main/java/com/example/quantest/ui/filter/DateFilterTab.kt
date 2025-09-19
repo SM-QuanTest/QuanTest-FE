@@ -12,7 +12,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 @Composable
-fun DateFilterScreen(
+fun DateFilterTab(
     onDateSelected: (Long) -> Unit = {} // 선택된 날짜(epoch millis, 00:00가 아님에 유의)
 ) {
     var showPicker by remember { mutableStateOf(false) }

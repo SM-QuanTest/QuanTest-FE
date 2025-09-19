@@ -31,7 +31,7 @@ import androidx.compose.ui.unit.dp
 import com.example.quantest.ui.theme.Navy
 
 @Composable
-fun IndustryFilterScreen(
+fun IndustryFilterTab(
     viewModel: FilterViewModel
 ) {
     LaunchedEffect(Unit) { viewModel.loadSectors() }

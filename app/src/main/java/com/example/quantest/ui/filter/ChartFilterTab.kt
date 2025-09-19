@@ -18,7 +18,7 @@ import com.example.quantest.ui.component.QuanTestOutlinedButton
 
 
 @Composable
-fun ChartFilterScreen(
+fun ChartFilterTab(
     viewModel: FilterViewModel
 ) {
     val scrollState = rememberScrollState()

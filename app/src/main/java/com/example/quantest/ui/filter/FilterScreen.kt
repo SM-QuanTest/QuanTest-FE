@@ -133,14 +133,14 @@ fun FilterScreen(
 
             // 탭별 화면
             when (selectedTab) {
-                FilterTab.DATE -> DateFilterScreen(
+                FilterTab.DATE -> DateFilterTab(
                     onDateSelected = { millis ->
                         dateYmd = millis.toYmd()
                     }
                 )
-                FilterTab.INDUSTRY -> IndustryFilterScreen(viewModel)
-                FilterTab.CHART -> ChartFilterScreen(viewModel)
-                FilterTab.INDICATOR -> IndicatorFilterScreen(
+                FilterTab.INDUSTRY -> IndustryFilterTab(viewModel)
+                FilterTab.CHART -> ChartFilterTab(viewModel)
+                FilterTab.INDICATOR -> IndicatorFilterTab(
                     viewModel,
                     onAddIndicatorClick = onOpenIndicatorSearch,
                     selectedIndicatorFlow = indicatorResultFlow
