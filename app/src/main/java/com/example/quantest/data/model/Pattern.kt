@@ -3,7 +3,7 @@ package com.example.quantest.data.model
 data class Pattern(
     val patternId: Int,
     val patternName: String,
-    val patternDirection: String, // "상승형" or "하락형"
+    val patternDirection: String,
     val patternImageUrl: String
 )
 

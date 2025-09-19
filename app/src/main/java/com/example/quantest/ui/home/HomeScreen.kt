@@ -1,6 +1,5 @@
 package com.example.quantest.ui.home
 
-import android.R.attr.data
 import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -37,7 +36,7 @@ enum class HomeTab(val title: String, val category: String) {
 fun HomeScreen(
     viewModel: HomeViewModel = viewModel(),
     onSearchClick: () -> Unit,
-    onStockClick: (Int) -> Unit
+    onStockClick: (Long) -> Unit
 ) {
     var selectedTab by rememberSaveable { mutableStateOf(HomeTab.TURNOVER) }
 
@@ -97,7 +96,7 @@ fun RankingTitle(chartDate: String?) {
 }
 
 @Composable
-fun RankingList(items: List<StockItem>, onItemClick: (Int) -> Unit) {
+fun RankingList(items: List<StockItem>, onItemClick: (Long) -> Unit) {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
