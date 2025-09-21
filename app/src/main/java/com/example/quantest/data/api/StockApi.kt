@@ -9,6 +9,7 @@ import com.example.quantest.data.model.IndicatorConfig
 import com.example.quantest.data.model.IndicatorLine
 import com.example.quantest.data.model.LatestChartData
 import com.example.quantest.data.model.Pattern
+import com.example.quantest.data.model.PatternRecord
 import com.example.quantest.data.model.PatternStockItem
 import com.example.quantest.data.model.Sector
 import com.example.quantest.data.model.StockRankingData
@@ -80,4 +81,12 @@ interface StockApi {
         @Query("date") date: String,
         @Body body: FilterRequest
     ): BaseResponse<List<StockResponse>>
+
+    // 패턴 탐지 다건 조회
+    @GET("/charts/{stockId}/patterns")
+    suspend fun getPatternRecords(
+        @Path("stockId") stockId: Long,
+        @Query("limit") limit: Int? = null,
+        @Query("cursorDate") cursorDate: String? = null
+    ): Response<BaseResponse<Page<PatternRecord>>>
 }

@@ -18,3 +18,14 @@ fun getYesterdayFormatted(): String {
     val formatter = SimpleDateFormat("yyyy-MM-dd", Locale.KOREAN)
     return formatter.format(calendar.time)
 }
+
+// "yyyy-MM-dd" -> "MM.dd"
+fun formatDate(raw: String): String {
+    return try {
+        val inFmt = SimpleDateFormat("yyyy-MM-dd", Locale.KOREAN)
+        val outFmt = SimpleDateFormat("MM.dd", Locale.KOREAN)
+        outFmt.format(inFmt.parse(raw)!!)
+    } catch (_: Exception) {
+        raw
+    }
+}
