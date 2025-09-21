@@ -33,7 +33,7 @@ interface StockApi {
     suspend fun getChartPage(
         @Path("stockId") stockId: Long,
         @Query("limit") limit: Int? = null,
-        @Query("cursor") cursorDate: String? = null
+        @Query("cursorDate") cursorDate: String? = null
     ): Response<BaseResponse<Page<ChartData>>>
 
     // 종목 일봉 차트 단건 조회
@@ -45,7 +45,7 @@ interface StockApi {
     // 패턴 다건 조회(상승/하락)
     @GET("/patterns")
     suspend fun getPatterns(
-        @Query("direction") type: String? = null
+        @Query("direction") direction: String? = null
     ): Response<BaseResponse<List<Pattern>>>
 
     // 패턴 탐지된 종목 다건 조회
