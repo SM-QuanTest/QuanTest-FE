@@ -12,6 +12,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.quantest.data.model.PatternRecord
 import com.example.quantest.util.formatDate
+import androidx.compose.foundation.clickable
 
 @Composable
 fun PatternTabContent(
@@ -55,7 +56,10 @@ fun PatternTabContent(
         modifier = modifier.fillMaxSize()
     ) {
         itemsIndexed(items, key = { _, it -> it.patternRecordId }) { index, item ->
-            PatternRow(item)
+            PatternRow(
+                item = item,
+                onClick = { viewModel.focusChartOn(item.patternRecordDate) } // ← 여기!
+            )
             if (index < items.lastIndex) Divider(thickness = 0.5.dp)
         }
 
@@ -73,10 +77,14 @@ fun PatternTabContent(
 }
 
 @Composable
-private fun PatternRow(item: PatternRecord) {
+private fun PatternRow(
+    item: PatternRecord,
+    onClick: () -> Unit
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .clickable(onClick = onClick)
             .padding(horizontal = 20.dp, vertical = 16.dp),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {

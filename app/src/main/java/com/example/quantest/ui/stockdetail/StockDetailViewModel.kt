@@ -9,6 +9,8 @@ import com.example.quantest.data.model.ChartData
 import com.example.quantest.data.model.LatestChartData
 import com.example.quantest.data.model.PatternRecord
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 
 class StockDetailViewModel : ViewModel() {
 
@@ -264,6 +266,14 @@ class StockDetailViewModel : ViewModel() {
 
     fun isPatternLoading(): Boolean = patternIsLoading
     fun hasMorePatterns(): Boolean = patternHasNext
+
+    // 이동
+    private val _chartFocusDate = MutableSharedFlow<String>(extraBufferCapacity = 1)
+    val chartFocusDate = _chartFocusDate.asSharedFlow()
+
+    fun focusChartOn(date: String) {
+        _chartFocusDate.tryEmit(date)   // yyyy-MM-dd
+    }
 }
 
 // API 24 호환(yyyy-MM-dd 하루 빼기)

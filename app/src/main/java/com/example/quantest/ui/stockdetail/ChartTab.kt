@@ -8,7 +8,9 @@ import android.view.MotionEvent
 import android.widget.LinearLayout
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -16,10 +18,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color.Companion.Gray
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.example.quantest.R
-import com.example.quantest.data.model.ChartData
 import com.example.quantest.ui.theme.Blue
 import com.example.quantest.ui.theme.Green
 import com.example.quantest.ui.theme.Magenta
@@ -31,6 +33,7 @@ import com.example.quantest.util.chartDataToEntries
 import com.example.quantest.util.chartDataToVolumeEntries
 import com.github.mikephil.charting.charts.BarChart
 import com.github.mikephil.charting.charts.BarLineChartBase
+import com.github.mikephil.charting.charts.CandleStickChart
 import com.github.mikephil.charting.charts.CombinedChart
 import com.github.mikephil.charting.components.Legend
 import com.github.mikephil.charting.components.XAxis
@@ -54,10 +57,17 @@ private const val RESET_RATIO   = 0.12f   // 12% 이상 벗어나면 재무장
 
 @Composable
 fun ChartTabContent(
-    data: List<ChartData>,
-    onLoadMore: () -> Unit
+    viewModel: StockDetailViewModel,
+    onLoadMore: () -> Unit,
+    focusDate: String?,
 ) {
+    val data = viewModel.chartData
     if (data.isEmpty()) return
+
+    val context = LocalContext.current
+    var chart by remember { mutableStateOf<CandleStickChart?>(null) }
+    var priceRef by remember { mutableStateOf<CombinedChart?>(null) }
+    var volRef   by remember { mutableStateOf<BarChart?>(null) }
 
     // 로컬 상태
     var lastSize by remember { mutableStateOf(0) }
@@ -70,6 +80,19 @@ fun ChartTabContent(
     // 이동 방향 체크용
     var lastLowest by remember { mutableStateOf(Float.NaN) }
 
+    // 날짜 포커스 (날짜/데이터/차트 레퍼런스 변화에 반응)
+    LaunchedEffect(focusDate, data, priceRef, volRef) {
+        val date = focusDate ?: return@LaunchedEffect
+        val i = data.indexOfFirst { it.chartDate == date }
+        val p = priceRef ?: return@LaunchedEffect
+        if (i >= 0) {
+            focusAtIndex(p, volRef, i)
+        } else {
+            // (옵션) 현재 페이지에 없으면 더 로드 후 재시도 로직을 넣고 싶으면 여기서 호출
+            // onLoadMore()
+        }
+    }
+
     AndroidView(
         factory = { context ->
             val view = LayoutInflater.from(context)
@@ -77,6 +100,10 @@ fun ChartTabContent(
 
             val priceChart = view.findViewById<CombinedChart>(R.id.candleChart)
             val volumeChart = view.findViewById<BarChart>(R.id.volumeChart)
+
+            // 외부에서 접근할 수 있도록 보관
+            priceRef = priceChart
+            volRef   = volumeChart
 
             fun applyVisibleRange() {
                 priceChart.setVisibleXRangeMinimum(VISIBLE_COUNT)
@@ -401,4 +428,19 @@ fun ChartTabContent(
             .fillMaxWidth()
             .height(360.dp)
     )
+}
+
+private fun focusAtIndex(
+    price: CombinedChart,
+    volume: BarChart?,
+    index: Int
+) {
+    val x = index.toFloat()
+    price.centerViewToAnimated(x, 0f, YAxis.AxisDependency.LEFT, 450)
+
+    // 하이라이트
+    //price.highlightValue(x, /*dataSetIndex=*/0, /*callListener=*/true)
+
+    price.moveViewToX(x)
+    volume?.moveViewToX(x)
 }

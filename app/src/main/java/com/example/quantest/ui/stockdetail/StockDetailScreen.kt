@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.Modifier
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -69,6 +70,15 @@ fun StockDetailScreen(
     onBuyClick: () -> Unit
 ) {
     var selectedTab by rememberSaveable { mutableStateOf(StockDetailTab.CHART) }
+    var focusDate by remember { mutableStateOf<String?>(null) }
+
+    // 패턴 탭에서 발생시킨 “해당 날짜로 포커스” 이벤트 받기
+    LaunchedEffect(Unit) {
+        viewModel.chartFocusDate.collect { date ->
+            focusDate = date
+            selectedTab = StockDetailTab.CHART  // 차트 탭으로 전환
+        }
+    }
 
     LaunchedEffect(stockId) {
         Log.d("StockDetailScreen", "Received stockId: $stockId")
@@ -104,8 +114,9 @@ fun StockDetailScreen(
 
         when (selectedTab) {
             StockDetailTab.CHART -> ChartTabContent(
-                data = viewModel.chartData,
-                onLoadMore = { viewModel.loadMore(stockId) }
+                viewModel = viewModel,
+                onLoadMore = { viewModel.loadMore(stockId) },
+                focusDate = focusDate
             )
             StockDetailTab.INFO  -> InfoTabContent(viewModel)
             StockDetailTab.PATTERN -> PatternTabContent(
