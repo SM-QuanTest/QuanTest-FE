@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.quantest.data.api.RetrofitClient
 import com.example.quantest.data.model.ChartData
 import com.example.quantest.data.model.LatestChartData
+import com.example.quantest.data.model.PatternRecord
 import kotlinx.coroutines.launch
 
 class StockDetailViewModel : ViewModel() {
@@ -181,6 +182,88 @@ class StockDetailViewModel : ViewModel() {
             }
         }
     }
+
+    // ----------------------- Pattern Records -----------------------
+    private val _patternRecords = mutableStateOf<List<PatternRecord>>(emptyList())
+    val patternRecords: List<PatternRecord> get() = _patternRecords.value
+
+    private var patternNextCursor: String? = null
+    private var patternHasNext: Boolean = true
+    private var patternIsLoading = false
+
+    fun fetchPatternRecords(stockId: Long, limit: Int? = null) {
+        Log.d("PatternFetch", ">>> fetchPatternRecords() START stockId=$stockId")
+        // 초기화
+        patternNextCursor = null
+        patternHasNext = true
+
+        viewModelScope.launch {
+            patternIsLoading = true
+            try {
+                val res = RetrofitClient.stockApi.getPatternRecords(
+                    stockId = stockId,
+                    limit = limit,
+                    cursorDate = null
+                )
+                Log.d("PatternFetch", "HTTP ${res.code()} body=${res.body()}")
+
+                if (res.isSuccessful && res.body()?.success == true) {
+                    val page = res.body()!!.data!!
+                    _patternRecords.value = page.contents.sortedByDescending { it.patternRecordDate }
+                    patternNextCursor = page.nextCursor
+                    patternHasNext = page.hasNext
+                    Log.d("PatternFetch", "loaded=${_patternRecords.value.size} next=$patternNextCursor hasNext=$patternHasNext")
+                } else {
+                    Log.w("PatternFetch", "API error: ${res.message()}, code=${res.code()}")
+                }
+            } catch (e: Exception) {
+                Log.e("PatternFetch", "Exception: ${e.localizedMessage}", e)
+            } finally {
+                patternIsLoading = false
+                Log.d("PatternFetch", "<<< fetchPatternRecords() END")
+            }
+        }
+    }
+
+    fun loadMorePatterns(stockId: Long, limit: Int? = null) {
+        Log.d("PatternMore", ">>> loadMorePatterns() hasNext=$patternHasNext isLoading=$patternIsLoading cursor=$patternNextCursor")
+        if (!patternHasNext || patternIsLoading) return
+
+        val cursor = patternNextCursor ?: return
+        viewModelScope.launch {
+            patternIsLoading = true
+            try {
+                val res = RetrofitClient.stockApi.getPatternRecords(
+                    stockId = stockId,
+                    limit = limit,
+                    cursorDate = cursor
+                )
+                if (!res.isSuccessful || res.body()?.success != true) {
+                    Log.w("PatternMore", "API fail code=${res.code()} msg=${res.message()}")
+                    return@launch
+                }
+
+                val page = res.body()!!.data!!
+                val before = _patternRecords.value.size
+                val merged = (_patternRecords.value + page.contents)
+                    .distinctBy { it.patternRecordId }
+                    .sortedByDescending { it.patternRecordDate }
+                _patternRecords.value = merged
+                patternNextCursor = page.nextCursor
+                patternHasNext = page.hasNext
+
+                Log.d("PatternMore", "added=${merged.size - before} next=$patternNextCursor hasNext=$patternHasNext")
+            } catch (e: Exception) {
+                Log.e("PatternMore", "Exception: ${e.localizedMessage}", e)
+            } finally {
+                patternIsLoading = false
+                Log.d("PatternMore", "<<< loadMorePatterns() END")
+            }
+        }
+    }
+
+    fun isPatternLoading(): Boolean = patternIsLoading
+    fun hasMorePatterns(): Boolean = patternHasNext
 }
 
 // API 24 호환(yyyy-MM-dd 하루 빼기)

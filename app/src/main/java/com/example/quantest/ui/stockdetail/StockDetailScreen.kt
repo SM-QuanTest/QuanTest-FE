@@ -108,7 +108,10 @@ fun StockDetailScreen(
                 onLoadMore = { viewModel.loadMore(stockId) }
             )
             StockDetailTab.INFO  -> InfoTabContent(viewModel)
-            StockDetailTab.PATTERN -> PatternTabContent(viewModel)
+            StockDetailTab.PATTERN -> PatternTabContent(
+                viewModel = viewModel,
+                stockId = stockId
+            )
         }
 
         Spacer(modifier = Modifier.height(16.dp))
