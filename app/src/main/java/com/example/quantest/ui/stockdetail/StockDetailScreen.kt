@@ -1,7 +1,6 @@
 package com.example.quantest.ui.stockdetail
 
 import android.util.Log
-import android.view.LayoutInflater
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -27,60 +26,24 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.viewinterop.AndroidView
-import com.github.mikephil.charting.charts.CombinedChart
-import com.github.mikephil.charting.data.CandleData
-import com.github.mikephil.charting.data.CandleDataSet
-import android.graphics.Color as AndroidColor
-import android.graphics.Paint
-import android.view.MotionEvent
-import android.widget.LinearLayout
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.ui.graphics.Color.Companion.Gray
-import com.github.mikephil.charting.components.XAxis
-import com.github.mikephil.charting.data.CombinedData
-import com.github.mikephil.charting.data.LineData
-import com.github.mikephil.charting.data.LineDataSet
-import com.github.mikephil.charting.formatter.ValueFormatter
-import com.github.mikephil.charting.data.Entry
-import androidx.compose.ui.graphics.toArgb
-import com.example.quantest.ui.theme.Green
 import com.example.quantest.ui.theme.Red
 import com.example.quantest.ui.theme.Blue
-import com.example.quantest.ui.theme.Orange
-import com.example.quantest.ui.theme.Magenta
 import com.example.quantest.ui.theme.StormGray40
-import com.github.mikephil.charting.components.YAxis
-import com.github.mikephil.charting.data.BarData
-import com.github.mikephil.charting.data.BarDataSet
 import androidx.compose.ui.Alignment
 import com.example.quantest.ui.theme.Navy
 import com.example.quantest.ui.theme.StormGray10
-import com.example.quantest.ui.theme.StormGray80
-import androidx.compose.ui.text.TextStyle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.quantest.data.model.ChartData
 import com.example.quantest.R
 import com.example.quantest.ui.component.QuanTestTabRow
+import com.example.quantest.ui.theme.QuanTestTheme
 import com.example.quantest.util.formatPrice
-import com.example.quantest.util.formatVolume
-import com.example.quantest.util.ChartDateFormatter
-import com.example.quantest.util.calculateMA
-import com.example.quantest.util.chartDataToEntries
-import com.example.quantest.util.chartDataToVolumeEntries
-import com.example.quantest.util.formatAmountToEokWon
-import com.example.quantest.util.formatChartDate
-import com.github.mikephil.charting.charts.BarChart
-import com.github.mikephil.charting.charts.BarLineChartBase
-import com.github.mikephil.charting.components.Legend
-import com.github.mikephil.charting.listener.ChartTouchListener
-import com.github.mikephil.charting.listener.OnChartGestureListener
 import kotlin.math.abs
 
 @Preview(showBackground = true)
 @Composable
 fun StockDetailScreenPreview() {
-    MaterialTheme {
+    QuanTestTheme {
         StockDetailScreen(
             stockId = 1234,
             onBackClick = {},
@@ -92,7 +55,8 @@ fun StockDetailScreenPreview() {
 
 enum class StockDetailTab(val title: String) {
     CHART("차트"),
-    INFO("종목정보")
+    INFO("종목정보"),
+    PATTERN("패턴정보")
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -140,9 +104,11 @@ fun StockDetailScreen(
 
         when (selectedTab) {
             StockDetailTab.CHART -> ChartTabContent(
-                data = viewModel.chartData
+                data = viewModel.chartData,
+                onLoadMore = { viewModel.loadMore(stockId) }
             )
             StockDetailTab.INFO  -> InfoTabContent(viewModel)
+            StockDetailTab.PATTERN -> PatternTabContent(viewModel)
         }
 
         Spacer(modifier = Modifier.height(16.dp))

@@ -28,7 +28,9 @@ import com.example.quantest.util.formatPrice
 import com.example.quantest.util.formatVolume
 
 @Composable
-fun InfoTabContent(viewModel: StockDetailViewModel) {
+fun InfoTabContent(
+    viewModel: StockDetailViewModel
+) {
     val data = viewModel.latestChartData
 
     Column(modifier = Modifier.padding(16.dp)) {
