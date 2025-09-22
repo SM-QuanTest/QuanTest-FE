@@ -10,7 +10,6 @@ import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.graphics.Color
 
 private val DarkColorScheme = darkColorScheme(
     primary = White,
@@ -25,8 +24,8 @@ private val LightColorScheme = lightColorScheme(
     primary = StormGray80,  // 선택 텍스트/아이콘
     primaryContainer = White,   // 상단바/하단바 배경
     onPrimaryContainer = StormGray20,
-    secondary = PurpleGrey40,
-    tertiary = Pink40,
+    secondary = StormGray20,
+    tertiary = StormGray40,
     background = White,
     surface = White,
     surfaceVariant = StormGray10,

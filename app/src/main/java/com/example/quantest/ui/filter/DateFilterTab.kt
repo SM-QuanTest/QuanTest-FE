@@ -12,6 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.example.quantest.R
+import com.example.quantest.ui.theme.StormGray60
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -36,7 +37,6 @@ fun DateFilterTab(
             .fillMaxWidth()
             .padding(16.dp)
     ) {
-
         // 선택 버튼
         Box(
             modifier = Modifier
@@ -48,14 +48,14 @@ fun DateFilterTab(
                 shape = RoundedCornerShape(8.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
+                Text(selectedText)
+                Spacer(Modifier.width(8.dp))
                 Icon(
-                    painter = painterResource(id = R.drawable.ic_calendar),
+                    painter = painterResource(id = R.drawable.ic_edit_box),
                     contentDescription = "date",
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    tint = StormGray60,
                     modifier = Modifier.size(20.dp)
                 )
-                Spacer(Modifier.width(8.dp))
-                Text(selectedText)
             }
         }
     }
