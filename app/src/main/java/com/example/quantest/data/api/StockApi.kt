@@ -14,6 +14,7 @@ import com.example.quantest.data.model.PatternStockItem
 import com.example.quantest.data.model.Sector
 import com.example.quantest.data.model.StockRankingData
 import com.example.quantest.data.model.StockResponse
+import com.example.quantest.model.Stock
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -22,6 +23,10 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface StockApi {
+    // 종목 검색
+    @GET("/stocks")
+    suspend fun getStocks(): BaseResponse<List<Stock>>
+
     // 종목 랭킹 리스트 조회
     @GET("/stocks/rankings")
     suspend fun getStockRankings(

@@ -6,7 +6,6 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import okhttp3.Interceptor
 
-
 object RetrofitClient {
     const val BASE_URL = "https://78d2fa7f1848.ngrok-free.app/"
     // URL 로깅용 Interceptor
