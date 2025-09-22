@@ -54,7 +54,7 @@ private fun ChartRangeRow(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 10.dp)
+            .padding(horizontal = 16.dp, vertical = 16.dp)
     ) {
         // 라벨
         Text(

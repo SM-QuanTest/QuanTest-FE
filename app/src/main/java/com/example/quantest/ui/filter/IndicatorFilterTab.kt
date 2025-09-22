@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.StateFlow
 import androidx.compose.runtime.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import com.example.quantest.R
 import androidx.compose.material3.*
@@ -17,6 +18,7 @@ import androidx.compose.material3.TooltipDefaults.rememberPlainTooltipPositionPr
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import com.example.quantest.data.model.CompareOp
 import com.example.quantest.data.model.Indicator
 import com.example.quantest.data.model.IndicatorLine
@@ -153,7 +155,9 @@ fun IndicatorFilterTab(
                         )
                         Text(
                             text = line.indicatorLineName,
-                            style = MaterialTheme.typography.bodyLarge
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = if (isChecked) Navy else MaterialTheme.colorScheme.onSurface,
+                            fontWeight = if (isChecked) FontWeight.Bold else FontWeight.Normal
                         )
                     }
 
@@ -224,10 +228,13 @@ fun IndicatorFilterTab(
                 .fillMaxWidth(),
             contentAlignment = Alignment.Center
         ) {
-            QuanTestOutlinedButton(
+            OutlinedButton(
                 onClick = onAddIndicatorClick,
-                text = "+ 지표 추가"
-            )
+                shape = RoundedCornerShape(8.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("+ 지표 추가")
+            }
         }
     }
 
@@ -259,7 +266,11 @@ private fun CompareSection(
                     uncheckedColor = MaterialTheme.colorScheme.onSurface
                 )
             )
-            Text("라인 비교", style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.primary)
+            Text(
+                text = "라인 비교" ,
+                color = if (state.enabled) Navy else MaterialTheme.colorScheme.onSurface,
+                fontWeight = if (state.enabled) FontWeight.Bold else FontWeight.Normal
+            )
         }
 
         if (state.enabled) {
@@ -281,10 +292,16 @@ private fun CompareSection(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                OutlinedButton(onClick = { viewModel.addCompareRow(indicatorId) }) {
-                    Text("라인 비교 추가")
+                OutlinedButton(
+                    onClick = { viewModel.addCompareRow(indicatorId) },
+                    shape = RoundedCornerShape(8.dp),
+                    ) {
+                    Text("+ 라인 비교 추가")
                 }
-                Button(onClick = { viewModel.applyLineCompare(indicatorId) }) {
+                Button(
+                    onClick = { viewModel.applyLineCompare(indicatorId) },
+                    shape = RoundedCornerShape(8.dp),
+                    ) {
                     Text("적용")
                 }
             }
@@ -328,7 +345,9 @@ private fun LineCompareRow(
         IconButton(onClick = onRemove) {
             Icon(
                 painterResource(id = R.drawable.ic_cross_circle),
-                contentDescription = "삭제"
+                contentDescription = "삭제",
+//                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(20.dp)
             )
         }
     }
@@ -342,7 +361,10 @@ private fun LinePicker(
     onSelect: (Int?) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
-    OutlinedButton(onClick = { expanded = true }) {
+    OutlinedButton(
+        onClick = { expanded = true },
+        shape = RoundedCornerShape(8.dp),
+        ) {
         Text(
             lines.firstOrNull { it.indicatorLineId == selectedId }?.indicatorLineName
                 ?: "$label 선택"
@@ -383,6 +405,7 @@ private fun OperatorPicker(
     }
     OutlinedButton(
         onClick = { expanded = true },
+        shape = RoundedCornerShape(8.dp),
         modifier = Modifier.height(40.dp)
     ) {
         Text(text)
