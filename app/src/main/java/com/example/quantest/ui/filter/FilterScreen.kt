@@ -68,7 +68,6 @@ fun FilterScreen(
     indicatorResultFlow: StateFlow<Indicator?>? = null
 ) {
     var selectedTab by rememberSaveable { mutableStateOf(FilterTab.DATE) }
-
     var dateYmd by rememberSaveable { mutableStateOf(todayYmd()) }
 
     // 최초 업종 로드 (한 번만)
@@ -129,7 +128,10 @@ fun FilterScreen(
             )
 
             // 선택 칩
-            SelectedChipsBar(viewModel = viewModel)
+            SelectedChipsBar(
+                viewModel = viewModel,
+                dateYmd = dateYmd
+            )
 
             // 탭별 화면
             when (selectedTab) {
@@ -151,21 +153,20 @@ fun FilterScreen(
 }
 
 @Composable
-private fun SelectedChipsBar(viewModel: FilterViewModel) {
+private fun SelectedChipsBar(
+    viewModel: FilterViewModel,
+    dateYmd: String
+) {
     val sectors by viewModel.sectors.collectAsState()
     val selectedIds by viewModel.selectedIds.collectAsState()
     val chartSelections by viewModel.chartSelections.collectAsState()
     val indicatorSelections by viewModel.indicatorSelections.collectAsState()
     val compareSelections by viewModel.compareSelections.collectAsState()
 
-    if (selectedIds.isEmpty() &&
-        chartSelections.isEmpty() &&
-        indicatorSelections.isEmpty() &&
-        compareSelections.isEmpty()
-    ) {
-        HorizontalDivider(thickness = 1.dp, color = MaterialTheme.colorScheme.surfaceVariant)
-        return
-    }
+    val hasAnyChip = selectedIds.isNotEmpty() ||
+            chartSelections.isNotEmpty() ||
+            indicatorSelections.isNotEmpty() ||
+            compareSelections.isNotEmpty()
 
     val selectedList = remember(selectedIds, sectors) {
         selectedIds.mapNotNull { id -> sectors.find { it.sectorId == id } }
@@ -175,9 +176,34 @@ private fun SelectedChipsBar(viewModel: FilterViewModel) {
         LazyRow(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 12.dp, vertical = 8.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                .padding(horizontal = 4.dp, vertical = 0.dp),
+            horizontalArrangement = Arrangement.spacedBy(0.dp)
         ) {
+            // 날짜 칩
+            item(key = "chip_date") {
+                AssistChip(
+                    onClick = { /* no-op */ },
+                    label = {
+                        Text(
+                            dateYmd,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    },
+                    leadingIcon = {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_calendar),
+                            contentDescription = "date",
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.size(16.dp)
+                        )
+                    },
+                    border = BorderStroke(0.dp, Color.Transparent)
+                )
+            }
+
+            if (!hasAnyChip) return@LazyRow
+
             // 업종 칩
             items(selectedList, key = { it.sectorId }) { sector ->
                 AssistChip(
