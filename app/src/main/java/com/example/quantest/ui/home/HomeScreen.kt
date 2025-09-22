@@ -4,6 +4,8 @@ import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -39,6 +41,7 @@ fun HomeScreen(
     onStockClick: (Long) -> Unit
 ) {
     var selectedTab by rememberSaveable { mutableStateOf(HomeTab.TURNOVER) }
+    val listState = rememberLazyListState()
 
     LaunchedEffect(selectedTab) {
         viewModel.loadStocks(selectedTab.category)
@@ -46,6 +49,14 @@ fun HomeScreen(
 
     val chartDate = viewModel.chartDate
     val stockItems = viewModel.stockItems
+
+    LaunchedEffect(selectedTab, stockItems.size) {
+        // 데이터가 갱신된 시점에 리셋
+        listState.scrollToItem(0)
+        // 부드럽게 하고 싶으면 아래 한 줄로 대체:
+        // listState.animateScrollToItem(0)
+    }
+
 
     Scaffold(
         topBar = { QuanTestTopBar(onSearchClick = onSearchClick) }
@@ -66,7 +77,8 @@ fun HomeScreen(
                 onItemClick = { stockId ->
                     Log.d("HomeScreen", "Clicked stockId: $stockId")
                     onStockClick(stockId)
-                }
+                },
+                listState = listState
             )
         }
     }
@@ -96,8 +108,13 @@ fun RankingTitle(chartDate: String?) {
 }
 
 @Composable
-fun RankingList(items: List<StockItem>, onItemClick: (Long) -> Unit) {
+fun RankingList(
+    items: List<StockItem>,
+    onItemClick: (Long) -> Unit,
+    listState: LazyListState
+) {
     LazyColumn(
+        state = listState,
         modifier = Modifier
             .fillMaxSize()
             .padding(top = 8.dp)
