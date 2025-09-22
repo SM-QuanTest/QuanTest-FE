@@ -1,5 +1,10 @@
 package com.example.quantest.model
 
+data class Stock(
+    val stockId: Int,
+    val stockName: String
+)
+
 data class StockItem(
     val id: Long,
     val rank: Int?,

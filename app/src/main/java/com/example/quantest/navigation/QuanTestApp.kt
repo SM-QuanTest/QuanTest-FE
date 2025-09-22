@@ -121,11 +121,10 @@ fun QuanTestApp() {
             composable(route = NavRoute.SearchStock.route) {
                 SearchStockScreen(
                     onBackClick = { navController.popBackStack() },
-                    onSelect = { indicator -> // TODO: 해당 종목 화면으로 이동
-                        navController.previousBackStackEntry
-                            ?.savedStateHandle
-                            ?.set("indicator_result", indicator)
-                        navController.popBackStack()
+                    onSelect = { stock ->
+                        navController.navigate(
+                            NavRoute.StockDetail.buildRoute(stock.stockId.toLong())
+                        )
                     }
                 )
             }
