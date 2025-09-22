@@ -106,9 +106,9 @@ fun ChartTabContent(
             volRef   = volumeChart
 
             fun applyVisibleRange() {
-                priceChart.setVisibleXRangeMinimum(VISIBLE_COUNT)
+                //priceChart.setVisibleXRangeMinimum(VISIBLE_COUNT)
                 priceChart.setVisibleXRangeMaximum(VISIBLE_COUNT)
-                volumeChart.setVisibleXRangeMinimum(VISIBLE_COUNT)
+                //volumeChart.setVisibleXRangeMinimum(VISIBLE_COUNT)
                 volumeChart.setVisibleXRangeMaximum(VISIBLE_COUNT)
             }
 
@@ -314,9 +314,9 @@ fun ChartTabContent(
                 priceChart.setPinchZoom(true)
                 volumeChart.setPinchZoom(true)
                 // 보이는 개수 고정 (초기 보장)
-                priceChart.setVisibleXRangeMinimum(VISIBLE_COUNT)
+                //priceChart.setVisibleXRangeMinimum(VISIBLE_COUNT)
                 priceChart.setVisibleXRangeMaximum(VISIBLE_COUNT)
-                volumeChart.setVisibleXRangeMinimum(VISIBLE_COUNT)
+                //volumeChart.setVisibleXRangeMinimum(VISIBLE_COUNT)
                 volumeChart.setVisibleXRangeMaximum(VISIBLE_COUNT)
                 priceChart.moveViewToX(right)
                 volumeChart.moveViewToX(right)
@@ -390,9 +390,9 @@ fun ChartTabContent(
             volumeChart.viewPortHandler.refresh(volumeMatrix, volumeChart, false)
 
             // 가시폭 고정 재보장
-            priceChart.setVisibleXRangeMinimum(VISIBLE_COUNT)
+            //priceChart.setVisibleXRangeMinimum(VISIBLE_COUNT)
             priceChart.setVisibleXRangeMaximum(VISIBLE_COUNT)
-            volumeChart.setVisibleXRangeMinimum(VISIBLE_COUNT)
+            //volumeChart.setVisibleXRangeMinimum(VISIBLE_COUNT)
             volumeChart.setVisibleXRangeMaximum(VISIBLE_COUNT)
 
             // 뷰포트 보존: 왼쪽(과거)으로 prepend된 만큼 X를 우측으로 보정
