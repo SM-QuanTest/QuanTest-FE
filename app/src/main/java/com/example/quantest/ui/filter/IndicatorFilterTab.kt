@@ -25,6 +25,8 @@ import com.example.quantest.data.model.IndicatorLine
 import com.example.quantest.data.model.LineCompareState
 import com.example.quantest.data.model.LineComparison
 import com.example.quantest.ui.theme.Navy
+import com.example.quantest.ui.theme.StormGray60
+import com.example.quantest.ui.theme.White
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -301,6 +303,10 @@ private fun CompareSection(
                 Button(
                     onClick = { viewModel.applyLineCompare(indicatorId) },
                     shape = RoundedCornerShape(8.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = StormGray60,
+                        contentColor = White
+                    )
                     ) {
                     Text("적용")
                 }
@@ -346,7 +352,7 @@ private fun LineCompareRow(
             Icon(
                 painterResource(id = R.drawable.ic_cross_circle),
                 contentDescription = "삭제",
-//                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                tint = StormGray60,
                 modifier = Modifier.size(20.dp)
             )
         }
