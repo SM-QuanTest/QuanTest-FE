@@ -10,9 +10,6 @@ import com.example.quantest.model.ChangeDirection
 import com.example.quantest.model.StockItem
 import com.example.quantest.util.getTodayFormatted
 import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
-import java.util.Calendar
-import java.util.Locale
 
 class HomeViewModel : ViewModel() {
 

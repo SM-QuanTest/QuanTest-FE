@@ -6,14 +6,18 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import com.example.quantest.R
 import java.text.SimpleDateFormat
 import java.util.*
 
 @Composable
 fun DateFilterTab(
-    onDateSelected: (Long) -> Unit = {} // 선택된 날짜(epoch millis, 00:00가 아님에 유의)
+    onDateSelected: (Long) -> Unit = {}
 ) {
     var showPicker by remember { mutableStateOf(false) }
 
@@ -21,7 +25,7 @@ fun DateFilterTab(
     val today = remember { System.currentTimeMillis() }
     val dateState = rememberDatePickerState(initialSelectedDateMillis = today)
 
-    // 선택 표시 텍스트 (java.time 없이 포맷)
+    // 선택 표시 텍스트
     val sdf = remember { SimpleDateFormat("yyyy-MM-dd", Locale.KOREA) }
     val selectedText = remember(dateState.selectedDateMillis) {
         dateState.selectedDateMillis?.let { sdf.format(Date(it)) } ?: "날짜 선택"
@@ -30,14 +34,29 @@ fun DateFilterTab(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp),
-        horizontalAlignment = Alignment.Start
+            .padding(16.dp)
     ) {
-        Spacer(Modifier.height(12.dp))
 
-        // 선택 버튼(혹은 TextField 등 원하는 컴포넌트로 바꿔도 됨)
-        Button(onClick = { showPicker = true }) {
-            Text(selectedText)
+        // 선택 버튼
+        Box(
+            modifier = Modifier
+                .fillMaxWidth(),
+            contentAlignment = Alignment.Center
+        ) {
+            OutlinedButton(
+                onClick = { showPicker = true },
+                shape = RoundedCornerShape(8.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_calendar),
+                    contentDescription = "date",
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(20.dp)
+                )
+                Spacer(Modifier.width(8.dp))
+                Text(selectedText)
+            }
         }
     }
 
@@ -59,7 +78,7 @@ fun DateFilterTab(
         ) {
             DatePicker(
                 state = dateState,
-                // 연/월 빠른 이동 토글 제공 (달력 <-> 연도 목록)
+                // 연/월 빠른 이동 토글
                 showModeToggle = true
             )
         }

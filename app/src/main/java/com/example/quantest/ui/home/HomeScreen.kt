@@ -104,7 +104,7 @@ fun RankingList(items: List<StockItem>, onItemClick: (Long) -> Unit) {
     ) {
         items(
             count = items.size,
-            key = { index -> items[index].id }
+//            key = { index -> items[index].id }
         ) { index ->
             val item = items[index]
             StockRankItem(item = item, onClick = { onItemClick(item.id) })
