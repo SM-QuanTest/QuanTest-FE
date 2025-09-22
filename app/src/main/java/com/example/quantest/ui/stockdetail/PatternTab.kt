@@ -25,15 +25,25 @@ fun PatternTabContent(
         viewModel.fetchPatternRecords(stockId)
     }
 
-    val items = viewModel.patternRecords
+    val items by viewModel.patternRecords.collectAsState()
     val listState = rememberLazyListState()
 
     // 끝에 가까워지면 더 불러오기
-    LaunchedEffect(items.size, listState.firstVisibleItemIndex, listState.layoutInfo.totalItemsCount) {
-        val lastVisible = listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
-        val total = listState.layoutInfo.totalItemsCount
-        if (total > 0 && lastVisible >= total - 3 && viewModel.hasMorePatterns() && !viewModel.isPatternLoading()) {
-            viewModel.loadMorePatterns(stockId)
+    LaunchedEffect(stockId) {
+        snapshotFlow {
+            val info = listState.layoutInfo
+            val lastVisible = info.visibleItemsInfo.lastOrNull()?.index ?: -1
+            val total = info.totalItemsCount
+            lastVisible to total
+        }.collect { (lastVisible, total) ->
+            if (
+                total > 0 &&
+                lastVisible >= total - 3 &&
+                viewModel.hasMorePatterns() &&
+                !viewModel.isPatternLoading()
+            ) {
+                viewModel.loadMorePatterns(stockId)
+            }
         }
     }
 
@@ -60,7 +70,7 @@ fun PatternTabContent(
                 item = item,
                 onClick = { viewModel.focusChartOn(item.patternRecordDate) } // ← 여기!
             )
-            if (index < items.lastIndex) Divider(thickness = 0.5.dp)
+            if (index < items.lastIndex) HorizontalDivider(thickness = 0.5.dp)
         }
 
         if (viewModel.isPatternLoading()) {

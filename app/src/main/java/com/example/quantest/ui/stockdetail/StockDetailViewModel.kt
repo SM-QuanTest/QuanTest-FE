@@ -10,6 +10,8 @@ import com.example.quantest.data.model.LatestChartData
 import com.example.quantest.data.model.PatternRecord
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 
 class StockDetailViewModel : ViewModel() {
@@ -186,14 +188,14 @@ class StockDetailViewModel : ViewModel() {
     }
 
     // ----------------------- Pattern Records -----------------------
-    private val _patternRecords = mutableStateOf<List<PatternRecord>>(emptyList())
-    val patternRecords: List<PatternRecord> get() = _patternRecords.value
+    private val _patternRecords = MutableStateFlow<List<PatternRecord>>(emptyList())
+    val patternRecords: StateFlow<List<PatternRecord>> get() = _patternRecords
 
     private var patternNextCursor: String? = null
     private var patternHasNext: Boolean = true
     private var patternIsLoading = false
 
-    fun fetchPatternRecords(stockId: Long, limit: Int? = null) {
+    fun fetchPatternRecords(stockId: Long, limit: Int? = 20) {
         Log.d("PatternFetch", ">>> fetchPatternRecords() START stockId=$stockId")
         // 초기화
         patternNextCursor = null
@@ -227,7 +229,7 @@ class StockDetailViewModel : ViewModel() {
         }
     }
 
-    fun loadMorePatterns(stockId: Long, limit: Int? = null) {
+    fun loadMorePatterns(stockId: Long, limit: Int? = 20) {
         Log.d("PatternMore", ">>> loadMorePatterns() hasNext=$patternHasNext isLoading=$patternIsLoading cursor=$patternNextCursor")
         if (!patternHasNext || patternIsLoading) return
 
